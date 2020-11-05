@@ -1,0 +1,20 @@
+!blue 2.0
+//=============================================================================
+//
+//  File:         /node_modules/rwt-dockable-panels/rwt-dockable-panels.blue
+//  Language:     Blue-phrase
+//  Copyright:    Read Write Tools © 2020
+//  License:      MIT
+//  Initial date: Oct 31, 2020
+//  Contents:     Collapsable and dockable panels
+//
+//=============================================================================
+
+!option --fragment
+
+menu #toolbar .chef-toolbar {
+	nav #toolbar-nav .chef_nav {
+		button #toolbar-expand-button	.chef-expand-button	*type=button *tabindex=102 *title='Show less' - 
+		button #toolbar-titlebar		.chef-h1			*type=button *tabindex=100 *width:226px RWT DOCKABLE PANELS 
+	}
+}
