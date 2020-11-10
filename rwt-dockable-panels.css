@@ -38,6 +38,7 @@
 	--right: 30px;
 	--width: 250px;
 	--font-family: Arial, sans-serif;
+	--z-index: 1;
 	
 	/* custom color variables */
 	--color: var(--pure-white);
@@ -76,7 +77,7 @@
 .chef-select { line-height: 26px; height: 26px; }
 .chef-command { line-height: 18px; height: 22px; }
 .chef-generic { line-height: 14px; }
-.chef-toolbar { position: fixed; width: var(--width); }
+.chef-toolbar { position: absolute; width: var(--width); z-index: var(--z-index); }
 .chef-toolbar { border-style: solid; border-color: var(--gray) var(--light-gray) var(--light-gray) var(--gray); border-width: 1px 2px 2px 1px; cursor: default; }
 .chef-list {}
 .chef-nav {}

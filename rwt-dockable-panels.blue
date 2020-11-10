@@ -14,7 +14,7 @@
 
 menu #toolbar .chef-toolbar {
 	nav #toolbar-nav .chef_nav {
-		button #toolbar-expand-button	.chef-expand-button	*type=button *tabindex=102 *title='Show less' - 
+		button #toolbar-expand-button	.chef-expand-button	*type=button *tabindex=102 *title='Show less' %2606 // ☆ ★ 
 		button #toolbar-titlebar		.chef-h1			*type=button *tabindex=100 *width:226px RWT DOCKABLE PANELS 
 	}
 }

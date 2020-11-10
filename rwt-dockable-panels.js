@@ -16,7 +16,15 @@ const Static = {
 	cssURL:           '/node_modules/rwt-dockable-panels/rwt-dockable-panels.css',
 	htmlText:         null,
 	cssText:          null,
-	nextId:           1
+	nextId:           1,
+	TOPMOST_OPEN:     '☆',
+	TOPMOST_CLOSED:   '★',
+	EXPAND:           '+',
+	COLLAPSE:         '-',
+	FLOAT_RIGHT:      '>',
+	FLOAT_LEFT:       '<',
+	COLLAPSE_RIGHT:   '<',
+	COLLAPSE_LEFT:    '>'
 };
 
 Object.seal(Static);
@@ -85,9 +93,9 @@ export default class RwtDockablePanels extends HTMLElement {
 			this.shadowRoot.appendChild(styleElement); 
 			
 			this.identifyChildren();
-			this.registerEventListeners();
-			await this.getConfiguredPanels();
 			this.determineCorner();
+			await this.getConfiguredPanels();
+			this.registerEventListeners();
 			this.sendComponentLoaded();
 		}
 		catch (err) {
@@ -160,6 +168,32 @@ export default class RwtDockablePanels extends HTMLElement {
 		});
 	}
 
+	//^ Identify this component's children
+	identifyChildren() {
+		this.toolbar = this.shadowRoot.getElementById('toolbar');
+		this.toolbar.isTopmostMenu = true;
+		this.toolbar.isExpanded = true;
+	}		
+
+	// bottom-left, bottom-right, top-left, top-right
+	determineCorner() {
+		this.corner = 'bottom-left';
+
+		if (this.hasAttribute('corner')) {
+			var attr = this.getAttribute('corner');
+			if (attr.indexOf('bottom') != -1 && attr.indexOf('left') != -1)
+				this.corner = 'bottom-left';
+			else if (attr.indexOf('bottom') != -1 && attr.indexOf('right') != -1)
+				this.corner = 'bottom-right';
+			else if (attr.indexOf('top') != -1 && attr.indexOf('left') != -1)
+				this.corner = 'top-left';
+			else if (attr.indexOf('top') != -1 && attr.indexOf('right') != -1)
+				this.corner = 'top-right';
+		}
+		
+		this.toolbar.className = `${this.corner} chef-toolbar`;		
+	}
+
 	//^ Fetch the user-specified JSON configuration file specified in
 	//  the custom element's sourceref attribute, which is a URL.
 	async getConfiguredPanels() {
@@ -191,35 +225,10 @@ export default class RwtDockablePanels extends HTMLElement {
 		}
 	}
 	
-	//^ Identify this component's children
-	identifyChildren() {
-		this.toolbar = this.shadowRoot.getElementById('toolbar');
-		this.toolbar.isTopmostMenu = true;
-		this.toolbar.isExpanded = true;
-	}		
-
 	registerEventListeners() {
 		// component events
-		this.shadowRoot.getElementById('toolbar-titlebar').addEventListener('pointerdown', this.onPointerDownTitlebar.bind(this));
+		this.shadowRoot.getElementById('toolbar-titlebar').addEventListener('pointerdown', this.onPointerdownToolbar.bind(this));
 		this.shadowRoot.getElementById('toolbar-expand-button').addEventListener('click', this.onClickExpandButton.bind(this));
-	}
-
-	determineCorner() {
-		this.corner = 'bottom-left';
-
-		if (this.hasAttribute('corner')) {
-			var attr = this.getAttribute('corner');
-			if (attr.indexOf('bottom') != -1 && attr.indexOf('left') != -1)
-				this.corner = 'bottom-left';
-			else if (attr.indexOf('bottom') != -1 && attr.indexOf('right') != -1)
-				this.corner = 'bottom-right';
-			else if (attr.indexOf('top') != -1 && attr.indexOf('left') != -1)
-				this.corner = 'top-left';
-			else if (attr.indexOf('top') != -1 && attr.indexOf('right') != -1)
-				this.corner = 'top-right';
-		}
-		
-		this.toolbar.className = `${this.corner} chef-toolbar`;		// bottom-left, bottom-right, top-left, top-right
 	}
 
 	//^ Inform the document's custom element that it is ready for programmatic use 
@@ -272,9 +281,9 @@ export default class RwtDockablePanels extends HTMLElement {
 		
 		// A group of elements for expanding-collapsing a menu, and docking-floating a menu
 		//   <nav id="panel-nav" class="chef-nav">
-		//      <button id="panel-nav-expand" class="chef-expand" type="button" tabindex="202">+</button>
-		//      <button id="panel-nav-float" class="chef-float" type="button" tabindex="203">~</button>
-		//      <button id="panel-nav-titlebar" class="chef-h2" tabindex="201">Position</button>
+		//      <button id="panel-expand-button" class="chef-expand-button" type="button" tabindex="202">+</button>
+		//      <button id="panel-float-button" class="chef-float-button" type="button" tabindex="203">~</button>
+		//      <button id="panel-titlebar" class="chef-h2" tabindex="201">Position</button>
 		//   </nav>
 		
 		var elNav = document.createElement('nav');
@@ -284,12 +293,13 @@ export default class RwtDockablePanels extends HTMLElement {
 	
 		// these two control buttons are styled with a float and need to be above the h2 
 		if (options.expandable) {
-			var el = this.createTitlebarButton(elNav, `${panelId}-expand-button`, 'chef-expand-button', '+', 'Show more', options.tabIndex+2);
+			var el = this.createTitlebarButton(elNav, `${panelId}-expand-button`, 'chef-expand-button', Static.EXPAND, 'Show more', options.tabIndex+2);
 			el.isExpanded = false;
 			el.addEventListener('click', this.onClickExpandButton.bind(this));
 		}
 		if (options.dockable) {
-			var el = this.createTitlebarButton(elNav, `${panelId}-float-button`, 'chef-float-button', '~', 'Detach menu', options.tabIndex+1);
+			var buttonChar = (this.corner == 'top-left' || this.corner == 'bottom-left') ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT;
+			var el = this.createTitlebarButton(elNav, `${panelId}-float-button`, 'chef-float-button', buttonChar, 'Detach menu', options.tabIndex+1);
 			el.isDocked = true;
 			el.addEventListener('click', this.onClickFloatButton.bind(this));
 		}
@@ -300,11 +310,7 @@ export default class RwtDockablePanels extends HTMLElement {
 			elTitlebar.style.width = 'var(--width-h1)';				
 		if (options.expandable == false && options.dockable == false)
 			elTitlebar.style.width = 'var(--width)';				
-		
-		// allow dockable menus to be moved by the mouse
-		if (options.dockable)
-			elTitlebar.addEventListener('pointerdown', this.onPointerDownTitlebar.bind(this));
-		
+
 		// create elements for the specified lines
 		for (let i=0; i < panelLines.length; i++) {
 			var lineOptions = panelLines[i];
@@ -524,7 +530,7 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> nav is the <NAV> parent element
 	//> buttonId is the new button's identifier
 	//> classname is either 'chef-expand-button' or 'chef-float-button'
-	//> elementText is the single character to use with the button  +/-  or ~/^ or the titlebar text
+	//> elementText is the single character to use with the button  + - < > 
 	//> tabIndex is an integer value
 	createTitlebarButton(nav, buttonId, classname, elementText, tooltip, tabIndex)
 	{
@@ -605,13 +611,13 @@ export default class RwtDockablePanels extends HTMLElement {
 					nav.children[i].style.display = (expandCollapse == 'expand') ? 'block' : 'none';
 			}
 			menu.style.width = (expandCollapse == 'expand') ? 'var(--width)' : '24px';
-			//menu.style.width = (expandCollapse == 'expand') ? '250px' : '24px';
-			//menu.style.left = '';
-			//menu.style.right = '2px';
-			//menu.style.top = '2px';
 		}
 		
-		button.innerHTML = (expandCollapse == 'expand') ? '-' : '+';
+		if (menu.isTopmostMenu)
+			button.innerHTML = (expandCollapse == 'expand') ? Static.TOPMOST_OPEN : Static.TOPMOST_CLOSED;
+		else
+			button.innerHTML = (expandCollapse == 'expand') ? Static.COLLAPSE : Static.EXPAND;
+		
 		button.title = (expandCollapse == 'expand') ? 'Show less' : 'Show more';
 		menu.isExpanded = (expandCollapse == 'expand') ? true : false;
 	
@@ -704,22 +710,39 @@ export default class RwtDockablePanels extends HTMLElement {
 			// create toolbar, append toolbar to shadow root, append menu to toolbar
 			var floatParentNode = document.createElement('menu');
 			floatParentNode.className = 'chef-toolbar';
+
+			// enable dragging
+			menu.boundPointerdownToolbar = this.onPointerdownToolbar.bind(this);
+			menu.addEventListener('pointerdown', menu.boundPointerdownToolbar);
 			
 			// place the floating parent just left or right of the submenu's docked position
-			var x = menu.offsetLeft + menu.offsetParent.offsetLeft;
-			var y = menu.offsetTop + menu.offsetParent.offsetTop;
-			if (this.corner.indexOf('-left') != -1)
-				x = x + (menu.offsetWidth + 13);
-			else  // this.corner.indexOf('-right') != -1)
-				x = x - (menu.offsetWidth + 13);
-			floatParentNode.style.left = x + 'px';
-			floatParentNode.style.top = y + 'px';
+			var gutter = 13;
+			if (this.corner == 'top-left' || this.corner == 'bottom-left') {
+				var x = (menu.offsetLeft + menu.offsetParent.offsetLeft) + menu.offsetWidth + gutter;
+				floatParentNode.style.left = x + 'px';
+			}
+			else {  // (this.corner == 'top-right' || this.corner == 'bottom-right')
+				var x = (menu.offsetLeft + menu.offsetParent.offsetLeft) - gutter;
+				floatParentNode.style.right = x + 'px';
+			}
+			
+			if (this.corner == 'top-left' || this.corner == 'top-right') {
+				var y = menu.offsetTop + menu.offsetParent.offsetTop;
+				floatParentNode.style.top = y + 'px';
+			}
+			else { // (this.corner == 'bottom-left' || this.corner == 'bottom-right')
+				
+				var toolbarBottom = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('bottom'));
+				var toolbarHeight = this.toolbar.offsetHeight;
+				var y = toolbarBottom + toolbarHeight - menu.offsetTop - menu.offsetHeight;
+				floatParentNode.style.bottom = y + 'px';
+			}
 			this.shadowRoot.appendChild(floatParentNode);
 			
 			// move the submenu to the new floating parent
 			floatParentNode.appendChild(menu);
-	
-			button.innerHTML = '^';
+
+			button.innerHTML = (this.corner == 'top-left' || this.corner == 'bottom-left') ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT;
 			button.title = 'Dock menu';
 			menu.isDocked = false;
 		}
@@ -731,11 +754,14 @@ export default class RwtDockablePanels extends HTMLElement {
 			menu.saveParentNode.removeChild(menu.saveReferenceNode);
 			floatParentNode.parentNode.removeChild(floatParentNode);
 			
+			// disable dragging
+			menu.removeEventListener('pointerdown', menu.boundPointerdownToolbar);
+
 			// if the toolbar is collapsed, hide the panel's elements
 			if (!menu.saveParentNode.isExpanded)
 				menu.style.display = 'none';
 	
-			button.innerHTML = '~';
+			button.innerHTML = (this.corner == 'top-left' || this.corner == 'bottom-left') ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT;
 			button.title = 'Detach menu';
 			menu.isDocked = true;
 		}
@@ -779,111 +805,100 @@ export default class RwtDockablePanels extends HTMLElement {
 	}
 	
 	//-------------------------------------------------------------------------
-	// Dragging titlebars
+	// Dragging toolbar menus
 	//-------------------------------------------------------------------------
 	
-	onPointerDownTitlebar(event) {
-		var elTitlebar = event.target;
-		var identifier = elTitlebar.id;
-	
-		if (elTitlebar.tagName != 'BUTTON')
+	onPointerdownToolbar(event) {
+		if (event.target.className == 'chef-expand-button' || event.target.className == 'chef-float-button')
 			return;
-		
-		var nav = elTitlebar.parentNode;
-		if (nav.tagName != 'NAV')
-			return;
-		
-		var menu = nav.parentNode;
-		if (menu.tagName != 'MENU')
-			return;
-	
-		// only move the 'chef-h1' menu ,or 'chef-h2' floating menus
-		if (!menu.isTopmostMenu && menu.isDocked)
-			return;
-		
-		var xy1 = this.normalizedElementXY(elTitlebar);
-		var xy2 = this.normalizedMouseXY(event);
-		elTitlebar.mouseOffsetX = xy2.x - xy1.x;
-		elTitlebar.mouseOffsetY = xy2.y - xy1.y;
-	
-		elTitlebar.setPointerCapture(event.pointerId);
-
-		elTitlebar.boundPointermoveTitlebar = this.onPointermoveTitlebar.bind(this)
-		elTitlebar.addEventListener('pointermove', elTitlebar.boundPointermoveTitlebar);
-
-		elTitlebar.boundPointerupTitlebar = this.onPointerupTitlebar.bind(this)
-		elTitlebar.addEventListener('pointerup', elTitlebar.boundPointerupTitlebar);
-
-		event.stopPropagation();
-	}
-	
-	onPointermoveTitlebar(event) {
-		var elTitlebar = event.target;
-		var identifier = elTitlebar.id;
-	
-		// save the current mouse position
-		var xy = this.normalizedMouseXY(event);
-		var x = xy.x - elTitlebar.mouseOffsetX;
-		var y = xy.y - elTitlebar.mouseOffsetY;
-		
-		if  (elTitlebar.className == 'chef-h1') 
-			toolbar = elTitlebar.parentNode.parentNode;
-		else
-			toolbar = elTitlebar.parentNode.parentNode.parentNode;
 			
-		toolbar.style.left = x + 'px';
-		toolbar.style.top = y + 'px';
+		var element = event.target;
+		var toolbarMenu = null;
+		
+		while (toolbarMenu == null) {
+			if (element.className.indexOf('chef-toolbar') != -1) {
+				toolbarMenu = element;
+			}
+			else {
+				if (element.parentNode.nodeName == '#document-fragment')
+					return;
+				element = element.parentNode;
+			}
+		}
+
+		if (this.corner == 'top-left' || this.corner == 'bottom-left')
+			toolbarMenu.startingElementX = toolbarMenu.offsetLeft;
+		else  // (this.corner == 'top-right' || this.corner == 'bottom-right')
+			toolbarMenu.startingElementX =  this.pxToNum(window.getComputedStyle(toolbarMenu).getPropertyValue('right'));
+				
+		if (this.corner == 'top-left' || this.corner == 'top-right')
+			toolbarMenu.startingElementY = toolbarMenu.offsetTop;
+		else // (this.corner == 'bottom-left' || this.corner == 'bottom-right')
+			toolbarMenu.startingElementY =  this.pxToNum(window.getComputedStyle(toolbarMenu).getPropertyValue('bottom'));
+
+		toolbarMenu.startingMouseX = event.pageX;
+		toolbarMenu.startingMouseY = event.pageY;
+
+		toolbarMenu.setPointerCapture(event.pointerId);
+
+		toolbarMenu.boundPointermoveToolbar = this.onPointermoveToolbar.bind(this);
+		toolbarMenu.addEventListener('pointermove', toolbarMenu.boundPointermoveToolbar);
+
+		toolbarMenu.boundPointerupToolbar = this.onPointerupToolbar.bind(this);
+		toolbarMenu.addEventListener('pointerup', toolbarMenu.boundPointerupToolbar);
+
+		event.stopPropagation();
+	}
+	
+	onPointermoveToolbar(event) {
+		var toolbarMenu = event.currentTarget;
+
+		if (this.corner == 'top-left') {
+			var newY = toolbarMenu.startingElementY - (toolbarMenu.startingMouseY - event.pageY);
+			var newX = toolbarMenu.startingElementX - (toolbarMenu.startingMouseX - event.pageX);
+			toolbarMenu.style.top = newY + 'px';
+			toolbarMenu.style.left = newX + 'px';
+		}
+		else if (this.corner == 'bottom-left') {
+			var newY = toolbarMenu.startingElementY + (toolbarMenu.startingMouseY - event.pageY);
+			var newX = toolbarMenu.startingElementX - (toolbarMenu.startingMouseX - event.pageX);
+			toolbarMenu.style.bottom = newY + 'px';
+			toolbarMenu.style.left = newX + 'px';
+		}
+		else if (this.corner == 'top-right') {
+			var newY = toolbarMenu.startingElementY - (toolbarMenu.startingMouseY - event.pageY);
+			var newX = toolbarMenu.startingElementX + (toolbarMenu.startingMouseX - event.pageX);
+			toolbarMenu.style.top = newY + 'px';
+			toolbarMenu.style.right = newX + 'px';
+		}
+		else if (this.corner == 'bottom-right') {
+			var newY = toolbarMenu.startingElementY + (toolbarMenu.startingMouseY - event.pageY);
+			var newX = toolbarMenu.startingElementX + (toolbarMenu.startingMouseX - event.pageX);
+			toolbarMenu.style.bottom = newY + 'px';
+			toolbarMenu.style.right = newX + 'px';
+		}
+		else {
+			console.error(`unrecognized corner ${this.corner}`);
+		}
+	
+		event.stopPropagation();
+	}
+	
+	onPointerupToolbar(event) {
+		var toolbarMenu = event.currentTarget;
+	
+		toolbarMenu.releasePointerCapture(event.pointerId);
+		toolbarMenu.removeEventListener('pointermove', toolbarMenu.boundPointermoveToolbar);
+		toolbarMenu.removeEventListener('pointerup', toolbarMenu.boundPointerupToolbar);
 		
 		event.stopPropagation();
 	}
 	
-	onPointerupTitlebar(event) {
-		var elTitlebar = event.target;
-	
-		elTitlebar.releasePointerCapture(event.pointerId);
-		elTitlebar.removeEventListener('pointermove', elTitlebar.boundPointermoveTitlebar);
-		elTitlebar.removeEventListener('pointerup', elTitlebar.boundPointerupTitlebar);
-		
-		event.stopPropagation();
-	}
-	
-	
-	//^ The normalizedMouseXY returns the position of the mouse, at the time of the event,
-	//  relative to document. This is cross-browser.
-	normalizedMouseXY(event) {
-		var x = 0;
-		var y = 0;
-	
-		if (event.pageX && event.pageY)
-		{
-			x = event.pageX;
-			y = event.pageY;
-		}
-		else if (event.clientX && event.clientY)
-		{
-			x = event.clientX + document.body.scrollLeft+ document.documentElement.scrollLeft;
-			y = event.clientY + document.body.scrollTop	+ document.documentElement.scrollTop;
-		}
-	
-		return {x:x, y:y}		
-	}
-	
-	
-	//^ The normalizedElementXY returns the X,Y position of the element, relative to the document,
-	//  by walking up the tree of elements adding each parent's offset.
-	//  This is cross-browser.
-	normalizedElementXY(elem) {
-		var x = 0;
-		var y = 0;
-	
-		if (elem.offsetParent)
-		{
-			do {
-				x += elem.offsetLeft;
-				y += elem.offsetTop;
-			} while (elem = elem.offsetParent);
-		}
-		return {x:x, y:y};	
+	pxToNum(string) {
+		var pos = string.indexOf('px');
+		if (pos != -1)
+			string = string.substr(0,pos);
+		return parseInt(string);
 	}
 }
 
