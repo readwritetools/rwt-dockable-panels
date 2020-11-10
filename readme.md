@@ -11,7 +11,7 @@
 
 
 <figure>
-	<img src='img/components/dockable-panels/dockable-panels-snapwire-109001.jpg' width='100%' />
+	<img src='/img/components/dockable-panels/dockable-panels-snapwire-109001.jpg' width='100%' />
 	<figcaption></figcaption>
 </figure>
 
@@ -234,6 +234,7 @@ rwt-dockable-panels {
     --bottom: 30px;
     --left: 30px;
     --right: 30px;
+    --z-index: 1;
 }
 ```
 
