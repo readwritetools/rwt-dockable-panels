@@ -129,8 +129,10 @@ it:
       * Apply a `sourceref` attribute with a reference to a JSON file containing the panel
          configuration. (Or optionally use the programmatic interface for panel
          configuration.)
+      * Optionally, apply an `open` or `closed` attribute to set the initial state of the
+         toolbar
 ```html
-<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right role=contentinfo></rwt-dockable-panels>
+<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right role=contentinfo open></rwt-dockable-panels>
 ```
 
 
@@ -218,6 +220,27 @@ with the same properties as just described. The methods are:
 	<dd>creates multiple buttons that logically work together and visually appear on one line</dd>
 	<dt>appendGenericArea (elPanel, options)</dt>
 	<dd>creates a div suitable for use with dynamic HTML</dd>
+</dl>
+
+#### Programmatic manipulation
+
+The component also has methods to programmatically manipulate the toolbar and
+its panels.
+
+
+<dl>
+	<dt>openToolbar ()</dt>
+	<dd>shows all the panels in their current expand/collapse state</dd>
+	<dt>closeToolbar ()</dt>
+	<dd>leaves only the Star button visible</dd>
+	<dt>expandPanel (menuID)</dt>
+	<dd>shows all of the panel's lines</dd>
+	<dt>collapsePanel (menuID)</dt>
+	<dd>shows only the panel's titlebar</dd>
+	<dt>detachPanel (menuID)</dt>
+	<dd>detaches the panel from the toolbar, allowing it to float independently</dd>
+	<dt>attachPanel (menuID)</dt>
+	<dd>reattaches the panel to the toolbar</dd>
 </dl>
 
 ### Customization
