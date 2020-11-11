@@ -73,6 +73,9 @@ export default class RwtDockablePanels extends HTMLElement {
 
 		// child elements
 		this.toolbar = null;
+		this.toolbarNav = null;
+		this.toolbarTitlebar = null;
+		this.toolbarExpandButton = null;
 		
 		Object.seal(this);
 	}
@@ -95,6 +98,7 @@ export default class RwtDockablePanels extends HTMLElement {
 			this.identifyChildren();
 			this.determineCorner();
 			await this.getConfiguredPanels();
+			this.determineInitialState();
 			this.registerEventListeners();
 			this.sendComponentLoaded();
 		}
@@ -173,6 +177,9 @@ export default class RwtDockablePanels extends HTMLElement {
 		this.toolbar = this.shadowRoot.getElementById('toolbar');
 		this.toolbar.isTopmostMenu = true;
 		this.toolbar.isExpanded = true;
+		this.toolbarNav = this.shadowRoot.getElementById('toolbar-nav');
+		this.toolbarTitlebar = this.shadowRoot.getElementById('toolbar-titlebar');
+		this.toolbarExpandButton = this.shadowRoot.getElementById('toolbar-expand-button');
 	}		
 
 	// bottom-left, bottom-right, top-left, top-right
@@ -223,6 +230,17 @@ export default class RwtDockablePanels extends HTMLElement {
 		catch(err) {
 			console.log(err.message);
 		}
+	}
+	
+	determineInitialState() {
+		if (this.hasAttribute('open')) {
+			this.openToolbar();
+		}
+		else if (this.hasAttribute('closed')) {
+			this.closeToolbar();
+		}
+		else
+			this.openToolbar();
 	}
 	
 	registerEventListeners() {
@@ -556,10 +574,25 @@ export default class RwtDockablePanels extends HTMLElement {
 		return el;
 	}
 		
+	getMenuElement(menuID) {
+		return this.shadowRoot.getElementById(menuID);
+	}
+	
+	getExpandButton(menuID) {
+		return this.shadowRoot.getElementById(menuID + '-expand-button');
+	}
+	
+	getFloatButton(menuID) {
+		return this.shadowRoot.getElementById(menuID + '-float-button');
+	}
+	
+	getTitlebar(menuID) {
+		return this.shadowRoot.getElementById(menuID + '-titlebar');
+	}
+	
 	//-------------------------------------------------------------------------
 	// Expand - Collapse
 	//-------------------------------------------------------------------------
-	
 	//	<menu id="panel-menu" class="chef-list">
 	//		<nav id="panel-nav" class="chef-nav">
 	//			<button id="panel-expand-button" class="chef-expand-button" >+</button>
@@ -567,7 +600,35 @@ export default class RwtDockablePanels extends HTMLElement {
 	//		<div class="chef-line">
 	//		<div class="chef-line">
 	//	</menu>
-
+	
+	// programmatic method to open the toolbar, showing all the panels in their current expand/collapse state
+	openToolbar() {
+		this.expandCollapseHelper(this.toolbar, this.toolbarExpandButton, 'expand');
+	}
+	
+	// programmatic method to close the toolbar, leaving only the Star button
+	closeToolbar() {
+		this.expandCollapseHelper(this.toolbar, this.toolbarExpandButton, 'collapse');
+	}
+	
+	// programmatic method to expand a panel, showing all its lines
+	expandPanel(menuID) {
+		var menu = this.getMenuElement(menuID);
+		var button = this.getExpandButton(menuID);
+		
+		if (menu && button)
+			this.expandCollapseHelper(menu, button, 'expand');
+	}
+	
+	// programmatic method to collapse a panel, showing only its titlebar
+	collapsePanel(menuID) {
+		var menu = this.getMenuElement(menuID);
+		var button = this.getExpandButton(menuID);
+		
+		if (menu && button)
+			this.expandCollapseHelper(menu, button, 'collapse');
+	}
+	
 	//^ The onClickExpandButton function toggles between collapsed and expanded
 	onClickExpandButton(event) {	
 		var button = event.target;
@@ -583,18 +644,18 @@ export default class RwtDockablePanels extends HTMLElement {
 			return;
 	
 		var expandCollapse = menu.isExpanded ? 'collapse' : 'expand';
-		this.expandCollapseHelper(menu, nav, button, expandCollapse);
+		this.expandCollapseHelper(menu, button, expandCollapse);
 	
 		event.stopPropagation();
-	}
-	
+	}	
 	
 	//^ The expandCollapseHelper  function
 	//> menu is the parent <MENU> element
 	//> nav is the inner <NAV> element
 	//> button is the clickable <BUTTON> element
 	//> expandCollapse is 'expand' or 'collapse'
-	expandCollapseHelper(menu, nav, button, expandCollapse) {
+	expandCollapseHelper(menu, button, expandCollapse) {
+		
 		// show/hide all the lines
 		for (var i = 0; i < menu.children.length; i++) {
 			var child = menu.children[i];
@@ -605,11 +666,7 @@ export default class RwtDockablePanels extends HTMLElement {
 	
 		// if this is the topmost, hide the label too
 		if (menu.isTopmostMenu) {
-			for (var i = 0; i < nav.children.length; i++)
-			{
-				if (nav.children[i].className == 'chef-h1')
-					nav.children[i].style.display = (expandCollapse == 'expand') ? 'block' : 'none';
-			}
+			this.toolbarTitlebar.style.display = (expandCollapse == 'expand') ? 'block' : 'none';
 			menu.style.width = (expandCollapse == 'expand') ? 'var(--width)' : '24px';
 		}
 		
@@ -618,52 +675,17 @@ export default class RwtDockablePanels extends HTMLElement {
 		else
 			button.innerHTML = (expandCollapse == 'expand') ? Static.COLLAPSE : Static.EXPAND;
 		
-		button.title = (expandCollapse == 'expand') ? 'Show less' : 'Show more';
+		if (menu.isTopmostMenu)
+			button.title = (expandCollapse == 'expand') ? 'Close' : 'Open';
+		else
+			button.title = (expandCollapse == 'expand') ? 'Show less' : 'Show more';
+			
 		menu.isExpanded = (expandCollapse == 'expand') ? true : false;
-	
-		var event = new Event(expandCollapse);
-		menu.dispatchEvent(event);
-	}
-
-	//> id is the DOM identifier of the menu to expand
-	expandMenu(id) {
-		var menu = document.getElementById(id);
-		if (menu.tagName != 'MENU')
-			return;
-	
-		var nav = document.getElementById(id + '_nav');
-		if (nav.tagName != 'NAV')
-			return;
-		
-		var button = document.getElementById(id + '_expand');
-		if (button.tagName != 'BUTTON')
-			return;
-		
-		this.expandCollapseHelper(menu, nav, button, 'expand');
-	}
-	
-	
-	//> id is the DOM identifier of the menu to collapse
-	collapseMenu(id) {
-		var menu = document.getElementById(id);
-		if (menu.tagName != 'MENU')
-			return;
-	
-		var nav = document.getElementById(id + '_nav');
-		if (nav.tagName != 'NAV')
-			return;
-		
-		var button = document.getElementById(id + '_expand');
-		if (button.tagName != 'BUTTON')
-			return;
-		
-		this.expandCollapseHelper(menu, nav, button, 'collapse');
 	}
 
 	//-------------------------------------------------------------------------
 	// Dock - Float
 	//-------------------------------------------------------------------------
-	
 	//	<menu id="panel-menu" class="chef-list">
 	//		<nav id="panel-nav" class="chef-nav">
 	//			<button id="panel-float-button" class="chef-float-button" >+</button>
@@ -671,7 +693,25 @@ export default class RwtDockablePanels extends HTMLElement {
 	//		<div class="chef-line">
 	//		<div class="chef-line">
 	//	</menu>
-
+	
+	// programmatic method to detach a panel from the toolbar
+	detachPanel(menuID) {
+		var menu = this.getMenuElement(menuID);
+		var button = this.getFloatButton(menuID);
+		
+		if (menu && button)
+			this.floatDockHelper(menu, button, 'float');
+	}
+	
+	// programmatic method to reattach a panel to the toolbar
+	attachPanel(menuID) {
+		var menu = this.getMenuElement(menuID);
+		var button = this.getFloatButton(menuID);
+		
+		if (menu && button)
+			this.floatDockHelper(menu, button, 'dock');
+	}
+	
 	//^ The onClickFloatButton function toggles between docked and floating
 	onClickFloatButton(event) {	
 		var button = event.target;
@@ -687,19 +727,21 @@ export default class RwtDockablePanels extends HTMLElement {
 			return;
 		
 		var dockedFloated = menu.isDocked ? 'float' : 'dock';
-		this.floatDockHelper(menu, nav, button, dockedFloated);
+		this.floatDockHelper(menu, button, dockedFloated);
 		
 		event.stopPropagation();
 	}
 		
 	//^ The floatDockHelper function
 	//> menu is the parent <MENU> element
-	//> nav is the inner <NAV> element
 	//> button is the clickable <BUTTON> element
 	//> dockedFloated is 'float' or 'dock'
-	 floatDockHelper(menu, nav, button, dockedFloated) {
-		if (dockedFloated == 'float')
-		{
+	 floatDockHelper(menu, button, dockedFloated) {
+		 if (dockedFloated == 'float')
+		 {
+			 if (menu.isDocked == false)
+				 return;
+			 
 			// create a placeholder for redocking and insert it just before the menu being floated
 			var placeholderNode = document.createElement('div');
 			placeholderNode.style.display = 'none';
@@ -722,7 +764,9 @@ export default class RwtDockablePanels extends HTMLElement {
 				floatParentNode.style.left = x + 'px';
 			}
 			else {  // (this.corner == 'top-right' || this.corner == 'bottom-right')
-				var x = (menu.offsetLeft + menu.offsetParent.offsetLeft) - gutter;
+				var toolbarRight = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('right'));
+				var toolbarWidth = this.toolbar.offsetWidth;
+				var x = toolbarRight + toolbarWidth + gutter;
 				floatParentNode.style.right = x + 'px';
 			}
 			
@@ -749,7 +793,10 @@ export default class RwtDockablePanels extends HTMLElement {
 		
 		else // (dockedFloated == 'dock')
 		{
-			var floatParentNode = menu.parentNode;
+			 if (menu.isDocked == true)
+				 return;
+
+			 var floatParentNode = menu.parentNode;
 			menu.saveParentNode.insertBefore(menu, menu.saveReferenceNode);
 			menu.saveParentNode.removeChild(menu.saveReferenceNode);
 			floatParentNode.parentNode.removeChild(floatParentNode);
@@ -765,46 +812,9 @@ export default class RwtDockablePanels extends HTMLElement {
 			button.title = 'Detach menu';
 			menu.isDocked = true;
 		}
-		
-		var event = new Event(dockedFloated);
-		menu.dispatchEvent(event);
 	}
-	 
-	//> id is the DOM identifier of the menu to float
-	 floatMenu(id) {
-		var menu = document.getElementById(id);
-		if (menu.tagName != 'MENU')
-			return;
-	
-		var nav = document.getElementById(id + '_nav');
-		if (nav.tagName != 'NAV')
-			return;
-		
-		var button = document.getElementById(id + '_float');
-		if (button.tagName != 'BUTTON')
-			return;
-		
-		this.floatDockHelper(menu, nav, button, 'float');
-	}
-	
-	//> id is the DOM identifier of the menu to dock
-	dockMenu(id) {
-		var menu = document.getElementById(id);
-		if (menu.tagName != 'MENU')
-			return;
-	
-		var nav = document.getElementById(id + '_nav');
-		if (nav.tagName != 'NAV')
-			return;
-		
-		var button = document.getElementById(id + '_float');
-		if (button.tagName != 'BUTTON')
-			return;
-		
-		this.floatDockHelper(menu, nav, button, 'dock');
-	}
-	
-	//-------------------------------------------------------------------------
+
+	 //-------------------------------------------------------------------------
 	// Dragging toolbar menus
 	//-------------------------------------------------------------------------
 	
