@@ -1,6 +1,6 @@
 {
   "name": "rwt-dockable-panels",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Collapsable and dockable panels, a standards-based DOM Component",
   "author": "Read Write Tools",
   "license": "MIT",
