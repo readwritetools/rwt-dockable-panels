@@ -93,12 +93,13 @@
 .chef-h2 {}
 .chef-nav + .chef-line { border-top: dotted 1px var(--pure-black); }
 .chef-line { display: none; }
-.chef-line { margin-right: 10px; padding: 10px 0; }
+.chef-line { margin-right: 10px; padding: 10px 0 20px 0; }
 .chef-line { font-family: var(--font-family); font-weight: 500; font-size: 11px; }
 .chef-line { color: var(--color); background-color: var(--background-color4); }
 .chef-label { position: absolute; text-align: right; width: 110px; }
 .chef-input { margin-left: 120px; padding: 2px; width: 50px; }
 .chef-input[disabled] { background-color: var(--disabled-white); color: var(--color); }
+.chef-slider { margin: 0 20px; width: calc(100% - 40px); }
 .chef-after { margin-left: 10px; overflow: hidden; }
 .chef-select { margin-left: 120px; padding: 2px; width: 120px; }
 .chef-command, .chef-expand-button, .chef-float-button { font-family: 'Arial'; font-weight: 700; font-size: 14px; text-align: center; letter-spacing: 1px; }
