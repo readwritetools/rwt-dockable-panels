@@ -418,9 +418,15 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> elPanel is the <MENU> created by appendPanel
 	//> options has these properties { lineType, id, minValue, maxValue, tickmarks, labelText, tooltip, widthInPx, textAfter }
 	//    id is the identifier to be assigned to the text <INPUT> being created (the range slider will append "-slider" to this id)
+
+	//    minPosition is the minimum acceptable value; defaults to 0 if not specified
+	//    maxPosition is the maximum acceptable value; defaults to 100 if not specified
+
 	//    minValue is the minimum acceptable value; defaults to 0 if not specified
 	//    maxValue is the maximum acceptable value; defaults to 100 if not specified
-	//    stepValue is the accuracy of the value; defaults to 1 if not specified
+	
+	//    stepPosition is the accuracy of the value; defaults to 1 if not specified
+	//    curve is "linear" or "log"; defaults to linear if not defined
 	//    tickmarks is an array of objects with two properties: {v, t}
 	//       'v' is the value to use internally
 	//       't' is the text to show beneath the tick
@@ -436,16 +442,25 @@ export default class RwtDockablePanels extends HTMLElement {
 		var tooltip = (options.tooltip == undefined) ? '' : `title="${options.tooltip}"`;
 		var width = (options.widthInPx == undefined) ? '' : `style='width: ${options.widthInPx}'`;
 		
+		var minPosition = parseFloat(options.minPosition);
+		if (isNaN(minPosition))
+			minPosition = 0;
+		var maxPosition = parseFloat(options.maxPosition);
+		if (isNaN(maxPosition))
+			maxPosition = 100;
+		var stepPosition = parseFloat(options.stepPosition);
+		if (isNaN(stepPosition))
+			stepPosition = 1;
+
 		var minValue = parseFloat(options.minValue);
 		if (isNaN(minValue))
 			minValue = 0;
 		var maxValue = parseFloat(options.maxValue);
 		if (isNaN(maxValue))
 			maxValue = 100;
-		var stepValue = parseFloat(options.stepValue);
-		if (isNaN(stepValue))
-			stepValue = 1;
-
+		
+		var curve = options.curve || 'linear';
+		
 		var div1 = this.createLineWrapper(elPanel);
 		div1.innerHTML = `
 			<label id='${options.id}-label' class='chef-label'>${options.labelText}</label>
@@ -453,9 +468,7 @@ export default class RwtDockablePanels extends HTMLElement {
 			<span  id='${options.id}-after' class='chef-after'>${options.textAfter}</span>`;
 
 		var div2 = this.createLineWrapper(elPanel);
-		div2.innerHTML = `
-			<input id='${options.id}-slider' class='chef-slider' type='range' ${tooltip} min='${minValue}' max='${maxValue}' step='${stepValue}'></input>
-		`;
+		div2.innerHTML = `<input id='${options.id}-slider' class='chef-slider' type='range' ${tooltip} min='${minPosition}' max='${maxPosition}' step='${stepPosition}'></input>`;
 		
 		// keep the two input elements in sync
 		var elInput = this.shadowRoot.getElementById(`${options.id}`);
@@ -468,15 +481,37 @@ export default class RwtDockablePanels extends HTMLElement {
 				newValue = minValue;
 			if (newValue > maxValue)
 				newValue = maxValue;			
-			elSlider.value = newValue;
 			elInput.value = newValue;
+			elSlider.value = this.valueToSliderPosition(curve, minPosition, maxPosition, minValue, maxValue, newValue);
 		});
-		elSlider.addEventListener('change', (event) => {
-			var newValue = parseFloat(elSlider.value);
-			elInput.value = newValue;
+		elSlider.addEventListener('input', (event) => {
+			var newPosition = parseFloat(elSlider.value);
+			elInput.value = this.sliderPositionToValue(curve, minPosition, maxPosition, minValue, maxValue, newPosition);
 		});
 	}
 
+	sliderPositionToValue(curve, minPosition, maxPosition, minValue, maxValue, position) {
+		if (curve == 'linear')
+			return position;
+		
+		var minValue = Math.log(minValue);
+		var maxValue = Math.log(maxValue);
+		var scale = (maxValue - minValue) / (maxPosition - minPosition);
+		var value = Math.exp(minValue + scale*(position - minPosition));
+		return value;
+	}
+	
+	valueToSliderPosition(curve, minPosition, maxPosition, minValue, maxValue, value) {
+		if (curve == 'linear')
+			return value;
+		
+		var minValue = Math.log(minValue);
+		var maxValue = Math.log(maxValue);
+		var scale = (maxValue - minValue) / (maxPosition - minPosition);
+		var position = (Math.log(value) - minValue) / scale + minPosition;
+		return position;
+	}
+	
 	//-----------------------------------------------
 	//^ The appendSingleButton function creates an internal button for doing something user-defined
 	//> elPanel is the <MENU> created by appendPanel
