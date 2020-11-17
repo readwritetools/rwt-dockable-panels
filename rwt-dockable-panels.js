@@ -419,17 +419,17 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> options has these properties { lineType, id, minValue, maxValue, tickmarks, labelText, tooltip, widthInPx, textAfter }
 	//    id is the identifier to be assigned to the text <INPUT> being created (the range slider will append "-slider" to this id)
 
-	//    minPosition is the minimum acceptable value; defaults to 0 if not specified
-	//    maxPosition is the maximum acceptable value; defaults to 100 if not specified
-
-	//    minValue is the minimum acceptable value; defaults to 0 if not specified
-	//    maxValue is the maximum acceptable value; defaults to 100 if not specified
-	
-	//    stepPosition is the accuracy of the value; defaults to 1 if not specified
 	//    curve is "linear" or "log"; defaults to linear if not defined
+	//    minValue is the minimum acceptable "value" in user units; defaults to 0 if not specified
+	//    maxValue is the maximum acceptable "value" in user units; defaults to 100 if not specified
+	//    minPosition is the minimum slider position; defaults to 0 if not specified
+	//    maxPosition is the maximum slider position; defaults to 100 if not specified
+	//    stepPosition is the accuracy of the slider; defaults to 1 if not specified
+	
 	//    tickmarks is an array of objects with two properties: {v, t}
 	//       'v' is the value to use internally
 	//       't' is the text to show beneath the tick
+	
 	//    labelText is the text to be displayed in the <LABEL> before the two <INPUT>
 	//    tooltip is the text to display on hover, optional
 	//    widthInPx is a string value specifying the width of the input field, with a trailing 'px', optional
@@ -470,7 +470,7 @@ export default class RwtDockablePanels extends HTMLElement {
 		var div2 = this.createLineWrapper(elPanel);
 		div2.innerHTML = `<input id='${options.id}-slider' class='chef-slider' type='range' ${tooltip} min='${minPosition}' max='${maxPosition}' step='${stepPosition}'></input>`;
 		
-		// keep the two input elements in sync
+		// setup listeners to keep the two input elements in sync
 		var elInput = this.shadowRoot.getElementById(`${options.id}`);
 		var elSlider = this.shadowRoot.getElementById(`${options.id}-slider`);
 		elInput.addEventListener('change', (event) => {
@@ -490,26 +490,30 @@ export default class RwtDockablePanels extends HTMLElement {
 		});
 	}
 
+	// convert linear position to logarithmic value for configs with 'log' curve
 	sliderPositionToValue(curve, minPosition, maxPosition, minValue, maxValue, position) {
 		if (curve == 'linear')
 			return position;
-		
-		var minValue = Math.log(minValue);
-		var maxValue = Math.log(maxValue);
-		var scale = (maxValue - minValue) / (maxPosition - minPosition);
-		var value = Math.exp(minValue + scale*(position - minPosition));
-		return value;
+		else { // 'log'
+			var minValue = Math.log(minValue);
+			var maxValue = Math.log(maxValue);
+			var scale = (maxValue - minValue) / (maxPosition - minPosition);
+			var value = Math.exp(minValue + scale*(position - minPosition));
+			return value;
+		}
 	}
 	
+	// convert logarithmic value to linear position for configs with 'log' curve
 	valueToSliderPosition(curve, minPosition, maxPosition, minValue, maxValue, value) {
 		if (curve == 'linear')
 			return value;
-		
-		var minValue = Math.log(minValue);
-		var maxValue = Math.log(maxValue);
-		var scale = (maxValue - minValue) / (maxPosition - minPosition);
-		var position = (Math.log(value) - minValue) / scale + minPosition;
-		return position;
+		else { // 'log'
+			var minValue = Math.log(minValue);
+			var maxValue = Math.log(maxValue);
+			var scale = (maxValue - minValue) / (maxPosition - minPosition);
+			var position = (Math.log(value) - minValue) / scale + minPosition;
+			return position;
+		}
 	}
 	
 	//-----------------------------------------------
