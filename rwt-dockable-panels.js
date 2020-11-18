@@ -936,6 +936,9 @@ export default class RwtDockablePanels extends HTMLElement {
 			if (element.className.indexOf('chef-toolbar') != -1) {
 				toolbarMenu = element;
 			}
+			else if (element.className.indexOf('chef-line') != -1) {
+				return;
+			}
 			else {
 				if (element.parentNode.nodeName == '#document-fragment')
 					return;
