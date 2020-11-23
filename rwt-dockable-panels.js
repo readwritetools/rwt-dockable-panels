@@ -419,17 +419,19 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> options has these properties { lineType, id, minValue, maxValue, tickmarks, labelText, tooltip, widthInPx, textAfter }
 	//    id is the identifier to be assigned to the text <INPUT> being created (the range slider will append "-slider" to this id)
 
-	//    curve is "linear" or "log"; defaults to linear if not defined
-	//    minValue is the minimum acceptable "value" in user units; defaults to 0 if not specified
-	//    maxValue is the maximum acceptable "value" in user units; defaults to 100 if not specified
+	//    curve is "callback", "linear" or "log"; defaults to linear if not defined
+	//    fromSlider is a callback function that synchronizes <INPUT> value when the current slider position changes
+	//    toSlider is a callback function that synchronizes the current slider position when the <INPUT> value changes
+	//    fromUser
+	//    toUser
+	//    numDecimals
+	
+	//    minValue is the minimum acceptable "value" in user units; defaults to "" if not specified
+	//    maxValue is the maximum acceptable "value" in user units; defaults to "" if not specified
 	//    minPosition is the minimum slider position; defaults to 0 if not specified
 	//    maxPosition is the maximum slider position; defaults to 100 if not specified
 	//    stepPosition is the accuracy of the slider; defaults to 1 if not specified
-	
-	//    tickmarks is an array of objects with two properties: {v, t}
-	//       'v' is the value to use internally
-	//       't' is the text to show beneath the tick
-	
+
 	//    labelText is the text to be displayed in the <LABEL> before the two <INPUT>
 	//    tooltip is the text to display on hover, optional
 	//    widthInPx is a string value specifying the width of the input field, with a trailing 'px', optional
@@ -441,6 +443,7 @@ export default class RwtDockablePanels extends HTMLElement {
 		options.textAfter = options.textAfter || '';
 		var tooltip = (options.tooltip == undefined) ? '' : `title="${options.tooltip}"`;
 		var width = (options.widthInPx == undefined) ? '' : `style='width: ${options.widthInPx}'`;
+		var numDecimals = (options.numDecimals || 2);
 		
 		var minPosition = parseFloat(options.minPosition);
 		if (isNaN(minPosition))
@@ -452,14 +455,42 @@ export default class RwtDockablePanels extends HTMLElement {
 		if (isNaN(stepPosition))
 			stepPosition = 1;
 
-		var minValue = parseFloat(options.minValue);
-		if (isNaN(minValue))
-			minValue = 0;
-		var maxValue = parseFloat(options.maxValue);
-		if (isNaN(maxValue))
-			maxValue = 100;
+		var minValue = options.minValue != undefined ? parseFloat(options.minValue) : '';
+		var maxValue = options.minValue != undefined ? parseFloat(options.maxValue) : '';
 		
 		var curve = options.curve || 'linear';
+		
+		// function to convert internal value to slider position
+		var toSliderCallback = null;
+		if (options.toSlider != undefined && options.toSlider.constructor.name == 'Function')
+			toSliderCallback = options.toSlider;
+		else if (curve == 'log')
+			toSliderCallback = this.toSliderLogarithmic.bind(null, minPosition, maxPosition, minValue, maxValue);
+		else // (curve == 'linear')
+			toSliderCallback = this.toSliderLinear;
+		
+		// function to convert slider position to internal value
+		var fromSliderCallback = null;
+		if (options.fromSlider != undefined && options.fromSlider.constructor.name == 'Function')
+			fromSliderCallback = options.fromSlider;
+		else if (curve == 'log')
+			fromSliderCallback = this.fromSliderLogarithmic.bind(null, minPosition, maxPosition, minValue, maxValue);
+		else // (curve == 'linear')
+			fromSliderCallback = this.fromSliderLinear;
+		
+		// function to convert internal value to user text
+		var toUserCallback = null;
+		if (options.toUser != undefined && options.toUser.constructor.name == 'Function')
+			toUserCallback = options.toUser;
+		else 
+			toUserCallback = this.toUserFixedDecimal.bind(null, numDecimals, minValue, maxValue);
+		
+		// function to convert user text to internal value
+		var fromUserCallback = null;
+		if (options.fromUser != undefined && options.fromUser.constructor.name == 'Function')
+			fromUserCallback = options.fromUser;
+		else 
+			fromUserCallback = this.fromUserFixedDecimal.bind(null, numDecimals, minValue, maxValue);
 		
 		var div1 = this.createLineWrapper(elPanel);
 		div1.innerHTML = `
@@ -474,46 +505,85 @@ export default class RwtDockablePanels extends HTMLElement {
 		var elInput = this.shadowRoot.getElementById(`${options.id}`);
 		var elSlider = this.shadowRoot.getElementById(`${options.id}-slider`);
 		elInput.addEventListener('change', (event) => {
-			var newValue = parseFloat(elInput.value);
-			if (isNaN(newValue))
-				newValue = minValue;
-			if (newValue < minValue)
-				newValue = minValue;
-			if (newValue > maxValue)
-				newValue = maxValue;			
-			elInput.value = newValue;
-			elSlider.value = this.valueToSliderPosition(curve, minPosition, maxPosition, minValue, maxValue, newValue);
+			var userText = elInput.value;
+			var internalValue = fromUserCallback(userText);
+			var sliderPosition = toSliderCallback(internalValue);
+			var userText = toUserCallback(internalValue);  // this loopback reflects any min/max that was applied
+			
+			// refresh the visual of both elements
+			elInput.value = userText;
+			elSlider.value = sliderPosition;
 		});
 		elSlider.addEventListener('input', (event) => {
-			var newPosition = parseFloat(elSlider.value);
-			elInput.value = this.sliderPositionToValue(curve, minPosition, maxPosition, minValue, maxValue, newPosition);
+			var sliderPosition = parseFloat(elSlider.value);
+			var internalValue = fromSliderCallback(sliderPosition);
+			var userText = toUserCallback(internalValue);
+			
+			// only the user input needs a visual refresh
+			elInput.value = userText;
 		});
 	}
 
-	// convert linear position to logarithmic value for configs with 'log' curve
-	sliderPositionToValue(curve, minPosition, maxPosition, minValue, maxValue, position) {
-		if (curve == 'linear')
-			return position;
-		else { // 'log'
-			var minValue = Math.log(minValue);
-			var maxValue = Math.log(maxValue);
-			var scale = (maxValue - minValue) / (maxPosition - minPosition);
-			var value = Math.exp(minValue + scale*(position - minPosition));
-			return value;
-		}
+	fromSliderLinear(sliderPosition) {
+		var internalValue = sliderPosition;
+		return internalValue;
 	}
 	
-	// convert logarithmic value to linear position for configs with 'log' curve
-	valueToSliderPosition(curve, minPosition, maxPosition, minValue, maxValue, value) {
-		if (curve == 'linear')
-			return value;
-		else { // 'log'
-			var minValue = Math.log(minValue);
-			var maxValue = Math.log(maxValue);
-			var scale = (maxValue - minValue) / (maxPosition - minPosition);
-			var position = (Math.log(value) - minValue) / scale + minPosition;
-			return position;
+	// convert linear slider position to logarithmic value for configs with 'log' curve
+	fromSliderLogarithmic(minPosition, maxPosition, minValue, maxValue, sliderPosition) {
+		var minValue = Math.log(minValue);
+		var maxValue = Math.log(maxValue);
+		var scale = (maxValue - minValue) / (maxPosition - minPosition);
+		var internalValue = Math.exp(minValue + scale*(sliderPosition - minPosition));
+		return internalValue;
+	}
+	
+	toSliderLinear(internalValue) {
+		var sliderPosition = internalValue;
+		return sliderPosition;
+	}
+	
+	// convert logarithmic value to linear slider position for configs with 'log' curve
+	toSliderLogarithmic(minPosition, maxPosition, minValue, maxValue, internalValue) {
+		var minValue = Math.log(minValue);
+		var maxValue = Math.log(maxValue);
+		var scale = (maxValue - minValue) / (maxPosition - minPosition);
+		var sliderPosition = (Math.log(internalValue) - minValue) / scale + minPosition;
+		return sliderPosition;
+	}
+	
+	// convert from internal value to user text with fixed number of decimal points
+	toUserFixedDecimal(numDecimals, minValue, maxValue, internalValue) {
+		var userText = parseFloat(internalValue).toFixed(numDecimals);
+		return userText;
+	}
+	
+	// convert from user text to floating point or integer internal value
+	// numDecimals is a bound value, the others are the standard signature args
+	fromUserFixedDecimal(numDecimals, minValue, maxValue, userText) {
+		
+		var internalValue = (numDecimals == 0) ? parseInt(userText) : parseFloat(userText);
+		
+		// enforce min/max from user, if the configuration has provided for it
+		if (minValue != '' && maxValue != '') {
+			if (isNaN(internalValue))
+				internalValue = minValue;
+			if (internalValue < minValue)
+				internalValue = minValue;
+			if (internalValue > maxValue)
+				internalValue = maxValue;			
 		}
+		else {
+			if (isNaN(internalValue))
+				return undefined;
+		}
+
+		// fixed number of decimals
+		if (numDecimals > 0) {
+			var str = internalValue.toFixed(numDecimals);
+			internalValue = parseFloat(str);
+		}
+		return internalValue;
 	}
 	
 	//-----------------------------------------------
