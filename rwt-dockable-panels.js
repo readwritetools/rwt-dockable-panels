@@ -70,6 +70,8 @@ export default class RwtDockablePanels extends HTMLElement {
 		// properties
 		this.collapseSender = `${Static.componentName} ${this.instance}`;
 		this.corner = null;
+		this.nextZIndex = 2;
+		this.nextFloatLeft = 0;
 
 		// child elements
 		this.toolbar = null;
@@ -359,6 +361,10 @@ export default class RwtDockablePanels extends HTMLElement {
 					this.appendGenericArea(elPanel, lineOptions);
 					break;
 					
+				case 'table':
+					this.appendTableArea(elPanel, lineOptions);
+					break;
+					
 				default:
 					console.log(`appendPanel line ${i} specifies an unrecognized lineType "${lineType}"`);
 					break;
@@ -398,7 +404,7 @@ export default class RwtDockablePanels extends HTMLElement {
 		if (options.tooltip != undefined)
 			elInput.title = options.tooltip;
 		if (options. widthInPx != undefined)
-			elInput.style.width = widthInPx;
+			elInput.style.width = options.widthInPx;
 		div.appendChild(elInput);
 	
 		if (options.textAfter != undefined)
@@ -717,6 +723,35 @@ export default class RwtDockablePanels extends HTMLElement {
 		return elDiv;
 	}	
 
+	//^ The appendTableArea function creates a <table> suitable for use with dynamic HTML
+	//> id is the identifier to be assigned to the <TABLE> being created
+	//> innerHTML is the HTML to start with 
+	//> maxHeightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
+	//< returns the <TABLE> element created by this function
+	appendTableArea(elPanel, options)
+	{
+		console.assert(options.lineType == 'table');
+		options.id = options.id || `id${Static.nextId++}`;
+		options.innerHTML = options.innerHTML || '';
+		
+		var div = this.createLineWrapper(elPanel);
+		div.style.padding = '0';
+		div.style.height = '100%';
+		if (options.maxHeightInPx) {
+			div.style.overflowY = 'auto';
+			div.style.maxHeight = options.maxHeightInPx;
+		}
+		
+		var elTable = document.createElement('table');
+		elTable.id = options.id;
+		elTable.className = 'chef-table';
+		elTable.style.width = '100%';
+		elTable.innerHTML = options.innerHTML;
+		div.appendChild(elTable);
+		
+		return elTable;
+	}	
+
 	//-------------------------------------------------------------------------
 	// Helpers
 	//-------------------------------------------------------------------------
@@ -909,6 +944,13 @@ export default class RwtDockablePanels extends HTMLElement {
 		event.stopPropagation();
 	}
 		
+	//^ gets a small X offset for a menu that is being floated,
+	//  so that it is not directly on top of the previously floated menu.
+	nextFloatDeltaX() {
+		this.nextFloatLeft = (this.nextFloatLeft > 100) ? 0 : this.nextFloatLeft+10;
+		return this.nextFloatLeft;
+	}
+	
 	//^ The floatDockHelper function
 	//> menu is the parent <MENU> element
 	//> button is the clickable <BUTTON> element
@@ -934,29 +976,50 @@ export default class RwtDockablePanels extends HTMLElement {
 			menu.boundPointerdownToolbar = this.onPointerdownToolbar.bind(this);
 			menu.addEventListener('pointerdown', menu.boundPointerdownToolbar);
 			
-			// place the floating parent just left or right of the submenu's docked position
+			// prepare to use the previous position of the menu, when it was last floating, if available
+			var pp = menu.savePosition;
+			var bHasPosition = (pp != undefined) ? true : false;
+			
+			// otherwise, prepare to place the floating parent just left or right of the submenu's docked position
 			var gutter = 13;
+			var delta = this.nextFloatDeltaX();
+			
 			if (this.corner == 'top-left' || this.corner == 'bottom-left') {
-				var x = (menu.offsetLeft + menu.offsetParent.offsetLeft) + menu.offsetWidth + gutter;
-				floatParentNode.style.left = x + 'px';
+				if (!bHasPosition) {
+					var x = (menu.offsetLeft + menu.offsetParent.offsetLeft) + menu.offsetWidth + gutter + delta;
+					floatParentNode.style.left = x + 'px';
+				}
+				else
+					floatParentNode.style.left = pp.left;
 			}
 			else {  // (this.corner == 'top-right' || this.corner == 'bottom-right')
-				var toolbarRight = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('right'));
-				var toolbarWidth = this.toolbar.offsetWidth;
-				var x = toolbarRight + toolbarWidth + gutter;
-				floatParentNode.style.right = x + 'px';
+				if (!bHasPosition) {
+					var toolbarRight = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('right'));
+					var toolbarWidth = this.toolbar.offsetWidth;
+					var x = toolbarRight + toolbarWidth + gutter + delta;
+					floatParentNode.style.right = x + 'px';
+				}
+				else
+					floatParentNode.style.right = pp.right;
 			}
 			
 			if (this.corner == 'top-left' || this.corner == 'top-right') {
-				var y = menu.offsetTop + menu.offsetParent.offsetTop;
-				floatParentNode.style.top = y + 'px';
+				if (!bHasPosition) {
+					var y = menu.offsetTop + menu.offsetParent.offsetTop;
+					floatParentNode.style.top = y + 'px';
+				}
+				else
+					floatParentNode.style.top = pp.top;
 			}
 			else { // (this.corner == 'bottom-left' || this.corner == 'bottom-right')
-				
-				var toolbarBottom = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('bottom'));
-				var toolbarHeight = this.toolbar.offsetHeight;
-				var y = toolbarBottom + toolbarHeight - menu.offsetTop - menu.offsetHeight;
-				floatParentNode.style.bottom = y + 'px';
+				if (!bHasPosition) {
+					var toolbarBottom = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('bottom'));
+					var toolbarHeight = this.toolbar.offsetHeight;
+					var y = toolbarBottom + toolbarHeight - menu.offsetTop - menu.offsetHeight;
+					floatParentNode.style.bottom = y + 'px';
+				}
+				else
+					floatParentNode.style.bottom = pp.bottom;
 			}
 			this.shadowRoot.appendChild(floatParentNode);
 			
@@ -966,28 +1029,42 @@ export default class RwtDockablePanels extends HTMLElement {
 			button.innerHTML = (this.corner == 'top-left' || this.corner == 'bottom-left') ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT;
 			button.title = 'Dock menu';
 			menu.isDocked = false;
+			
+			// newly floated panels should be expanded automatically, and placed on top
+			this.expandPanel(menu.id);
+			menu.style.zIndex = this.nextZIndex++;
 		}
 		
 		else // (dockedFloated == 'dock')
 		{
-			 if (menu.isDocked == true)
-				 return;
-
-			 var floatParentNode = menu.parentNode;
+			if (menu.isDocked == true)
+				return;
+			
+			var floatParentNode = menu.parentNode;
+			
+			menu.savePosition = {};
+			menu.savePosition.left = floatParentNode.style.left;
+			menu.savePosition.right = floatParentNode.style.right;
+			menu.savePosition.top = floatParentNode.style.top;
+			menu.savePosition.bottom = floatParentNode.style.bottom;
+			
 			menu.saveParentNode.insertBefore(menu, menu.saveReferenceNode);
 			menu.saveParentNode.removeChild(menu.saveReferenceNode);
 			floatParentNode.parentNode.removeChild(floatParentNode);
 			
 			// disable dragging
 			menu.removeEventListener('pointerdown', menu.boundPointerdownToolbar);
-
+			
 			// if the toolbar is collapsed, hide the panel's elements
 			if (!menu.saveParentNode.isExpanded)
 				menu.style.display = 'none';
-	
+			
 			button.innerHTML = (this.corner == 'top-left' || this.corner == 'bottom-left') ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT;
 			button.title = 'Detach menu';
 			menu.isDocked = true;
+			
+			// newly docked panels should be collapsed automatically
+			this.collapsePanel(menu.id);
 		}
 	}
 
@@ -1037,6 +1114,8 @@ export default class RwtDockablePanels extends HTMLElement {
 		toolbarMenu.boundPointerupToolbar = this.onPointerupToolbar.bind(this);
 		toolbarMenu.addEventListener('pointerup', toolbarMenu.boundPointerupToolbar);
 
+		toolbarMenu.style.zIndex = this.nextZIndex++;
+		
 		event.stopPropagation();
 	}
 	

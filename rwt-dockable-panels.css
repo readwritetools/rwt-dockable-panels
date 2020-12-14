@@ -114,3 +114,11 @@
 .chef-menuitem {}
 .chef-generic { font-family: var(--font-family); font-weight: 500; font-size: 11px; text-align: left; letter-spacing: 1px; }
 .chef-generic { color: var(--color); padding: 13px 10px; }
+.chef-table tr { border-bottom: var(--border-color) 1px solid; }
+.chef-table tr:nth-child(even) { background-color:var(--background-color1); }
+.chef-table tr:nth-child(odd)  { background-color:var(--background-color2); }
+.chef-table th { font-weight: bold; }
+.chef-left { text-align: left; }
+.chef-center { text-align: center; }
+.chef-right { text-align: right; }
+
