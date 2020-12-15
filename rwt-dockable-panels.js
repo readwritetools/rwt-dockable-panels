@@ -20,7 +20,7 @@ const Static = {
 	TOPMOST_OPEN:     '☆',
 	TOPMOST_CLOSED:   '★',
 	EXPAND:           '+',
-	COLLAPSE:         '-',
+	COLLAPSE:         'x',
 	FLOAT_RIGHT:      '>',
 	FLOAT_LEFT:       '<',
 	COLLAPSE_RIGHT:   '<',
