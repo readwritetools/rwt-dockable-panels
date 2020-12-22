@@ -726,6 +726,7 @@ export default class RwtDockablePanels extends HTMLElement {
 	//^ The appendTableArea function creates a <table> suitable for use with dynamic HTML
 	//> id is the identifier to be assigned to the <TABLE> being created
 	//> innerHTML is the HTML to start with 
+	//> minHeightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
 	//> maxHeightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
 	//< returns the <TABLE> element created by this function
 	appendTableArea(elPanel, options)
@@ -737,6 +738,9 @@ export default class RwtDockablePanels extends HTMLElement {
 		var div = this.createLineWrapper(elPanel);
 		div.style.padding = '0';
 		div.style.height = '100%';
+		if (options.minHeightInPx) {
+			div.style.minHeight = options.minHeightInPx;
+		}
 		if (options.maxHeightInPx) {
 			div.style.overflowY = 'auto';
 			div.style.maxHeight = options.maxHeightInPx;
