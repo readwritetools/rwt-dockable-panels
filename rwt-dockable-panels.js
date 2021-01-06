@@ -96,6 +96,9 @@ export default class RwtDockablePanels extends HTMLElement {
 			this.attachShadow({mode: 'open'});
 			this.shadowRoot.appendChild(htmlFragment); 
 			this.shadowRoot.appendChild(styleElement); 
+
+			this.style.touchAction = 'none';	// to prevent browser from canceling my touch events in order to perform automatic pan/zoom actions
+			this.style.userSelect = 'none';		// to prevent android from popping up "COPY  SHARE  SELECT ALL" 
 			
 			this.identifyChildren();
 			this.determineCorner();
@@ -1110,8 +1113,6 @@ export default class RwtDockablePanels extends HTMLElement {
 		toolbarMenu.startingMouseX = event.pageX;
 		toolbarMenu.startingMouseY = event.pageY;
 
-		toolbarMenu.setPointerCapture(event.pointerId);
-
 		toolbarMenu.boundPointermoveToolbar = this.onPointermoveToolbar.bind(this);
 		toolbarMenu.addEventListener('pointermove', toolbarMenu.boundPointermoveToolbar);
 
@@ -1119,6 +1120,7 @@ export default class RwtDockablePanels extends HTMLElement {
 		toolbarMenu.addEventListener('pointerup', toolbarMenu.boundPointerupToolbar);
 
 		toolbarMenu.style.zIndex = this.nextZIndex++;
+		toolbarMenu.setPointerCapture(event.pointerId);
 		
 		event.stopPropagation();
 	}
