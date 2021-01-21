@@ -702,7 +702,7 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> id is the identifier to be assigned to the <DIV> being created
 	//> innerHTML is the text to be displayed 
 	//> heightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
-	//> overflowY is either 'scroll' or 'hidden', optional
+	//> overflowY is either 'scroll' or 'hidden' or 'auto', optional
 	//< returns the <DIV> element created by this function
 	appendGenericArea(elPanel, options)
 	{
@@ -731,6 +731,8 @@ export default class RwtDockablePanels extends HTMLElement {
 	//> innerHTML is the HTML to start with 
 	//> minHeightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
 	//> maxHeightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
+	//> heightInPx is a number of pixels, expressed as a string ending in 'px', like '156px'
+	//> overflowY is either 'scroll' or 'hidden' or 'auto', optional
 	//< returns the <TABLE> element created by this function
 	appendTableArea(elPanel, options)
 	{
@@ -740,14 +742,21 @@ export default class RwtDockablePanels extends HTMLElement {
 		
 		var div = this.createLineWrapper(elPanel);
 		div.style.padding = '0';
-		div.style.height = '100%';
-		if (options.minHeightInPx) {
+		if (options.minHeightInPx)
 			div.style.minHeight = options.minHeightInPx;
-		}
-		if (options.maxHeightInPx) {
-			div.style.overflowY = 'auto';
+		
+		if (options.maxHeightInPx)
 			div.style.maxHeight = options.maxHeightInPx;
-		}
+		
+		if (options.heightInPx)
+			div.style.height = options.heightInPx;
+		else
+			div.style.height = '100%';
+		
+		if (options.overflowY)
+			div.style.overflowY = options.overflowY;
+		else
+			div.style.overflowY = 'auto';
 		
 		var elTable = document.createElement('table');
 		elTable.id = options.id;
