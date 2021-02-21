@@ -1,6 +1,6 @@
 {
   "name": "rwt-dockable-panels",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Expand, collapse, dock and float accordion-style, standards-based DOM component",
   "author": "Read Write Tools",
   "license": "see license.html",
