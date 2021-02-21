@@ -1,126 +1,52 @@
 /* Copyright (c) 2021 Read Write Tools. Legal use subject to the Dockable Panels DOM Component Software License Agreement. */
-/*=============================================================================
-
-  File:         /node_modules/rwt-dockable-panels/rwt-dockable-panels.css
-  Language:     CSS
-  Copyright:    Read Write Tools © 2020
-  License:      MIT
-  Initial date: Oct 31, 2020
-  Contents:     Collapsable and dockable panels
-
-=============================================================================*/
-
-:host {
-	--pure-black: #000;
-	--nav-black: #111;
-	--light-black: #171717;
-	--medium-black: #222;
-	--black: #333;
-	--dark-gray: #555;
-	--gray: #777;
-	--light-gray: #999;
-	--disabled-white: #aaa;
-	--white: #ccc;
-	--pure-white: #fff;
-	--js-blue: #76afe8;
-	--title-blue: #42affa;
-	--yellow: #ffffa4;
-	--red: #ff3d3d;
-	
-	--surfie-green: #107187;
-	--coral-atoll: #0E6073;
-	--tiber: #093640;
-	--eden: #0D4A56;
-
-	/* custom element variables */
-	--top: 30px;
-	--bottom: 30px;
-	--left: 30px;
-	--right: 30px;
-	--width: 250px;
-	--font-family: Arial, sans-serif;
-	--z-index: 1;
-	
-	/* custom color variables */
-	--color: var(--pure-white);
-	--border-color: var(--pure-white);
-	--background-color1: var(--surfie-green);
-	--background-color2: var(--coral-atoll);
-	--background-color3: var(--tiber);
-	--background-color4: var(--eden);
-	
-	/* calculated variables */
-	--width-expand-float: 24px;
-	--width-h1: calc(var(--width) - var(--width-expand-float));
-	--width-h2: calc(var(--width) - 2*var(--width-expand-float));
-}
-
-#toolbar.bottom-left 	{
-	bottom: var(--bottom);
-	left: var(--left);
-}
-#toolbar.bottom-right {
-	bottom: var(--bottom);
-	right: var(--right);
-}
-#toolbar.top-left 	{
-	top: var(--top);
-	left: var(--left);
-}
-#toolbar.top-right 	{
-	top: var(--top);
-	right: var(--right);
-}
-
-.chef-toolbar, .chef-list, .chef-nav, .chef-h1, .chef-h2, .chef-line, .chef-label, .chef-input, .chef-after, .chef-select, .chef-expand-button, .chef-float-button, .chef-menuitem, .chef-command { margin: 0; padding: 0; }
-.chef-toolbar, .chef-list, .chef-nav, .chef-h1, .chef-h2, .chef-expand-button, .chef-float-button, .chef-menuitem { line-height: 24px; }
-.chef-line, .chef-label, .chef-input, .chef-after, .chef-select, .chef-command { line-height: 26px; height: 20px; }
-.chef-select { line-height: 26px; height: 26px; }
-.chef-command { line-height: 18px; height: 22px; }
-.chef-generic { line-height: 14px; }
-.chef-toolbar { position: absolute; width: var(--width); z-index: var(--z-index); }
-.chef-toolbar { border-style: solid; border-color: var(--gray) var(--light-gray) var(--light-gray) var(--gray); border-width: 1px 2px 2px 1px; cursor: default; }
-.chef-list {}
-.chef-nav {}
-.chef-h1, .chef-h2, .chef-menuitem, .chef-expand-button, .chef-float-button { border-width: 1px 0 0 0; border-style: solid; border-color: var(--border-color); cursor: pointer; }
-.chef-h1 { display: block; width: var(--width-h1); }
-.chef-h2 { display: block; width: var(--width-h2); }
-.chef-menuitem, .chef-line { display: block; width: 100%; }
-.chef-h1, .chef-h2, .chef-menuitem { font-family: var(--font-family); font-weight: 900; font-size: 14px; letter-spacing: 1px; text-align: left; }
-.chef-h1, .chef-h2, .chef-menuitem { color: var(--color); background-color: var(--background-color3); }
-.chef-h1, .chef-h2, .chef-menuitem { text-indent: 10px; }
-.chef-h1:hover, .chef-h2:hover, .chef-menuitem:hover { background-color: var(--background-color1); }
-.chef-h1 {}
-.chef-h2 {}
-.chef-nav + .chef-line { border-top: dotted 1px var(--pure-black); }
-.chef-line { display: none; }
-.chef-line { margin-right: 10px; padding: 10px 0 20px 0; }
-.chef-line { font-family: var(--font-family); font-weight: 500; font-size: 11px; }
-.chef-line { color: var(--color); background-color: var(--background-color4); }
-.chef-label { position: absolute; text-align: right; width: 110px; }
-.chef-input { margin-left: 120px; padding: 2px; width: 50px; }
-.chef-input[disabled] { background-color: var(--disabled-white); color: var(--color); }
-.chef-slider { margin: 0 20px; width: calc(100% - 40px); }
-.chef-after { margin-left: 10px; overflow: hidden; }
-.chef-select { margin-left: 120px; padding: 2px; width: 120px; }
-.chef-command, .chef-expand-button, .chef-float-button { font-family: 'Arial'; font-weight: 700; font-size: 14px; text-align: center; letter-spacing: 1px; }
-.chef-command:focus, .chef-expand-button:focus, .chef-float-button:focus, .chef-menuitem:focus, .chef-h1:focus, .chef-h2:focus { outline: 1px dotted var(--disabled-white); outline-offset: -3px; }
-.chef-expand-button, .chef-float-button { float: right; }
-.chef-expand-button, .chef-float-button { width: 24px; border-left: 1px solid var(--border-color); }
-.chef-expand-button, .chef-float-button { color: var(--color); background-color: var(--background-color2); }
-.chef-command { display: block; width: 90%; margin: 0px auto; }
-.chef-command { color: var(--color); background-color: var(--background-color2); border: 1px solid var(--border-color);  border-radius: 3px; cursor: pointer; }
-.chef-one-third-command { display: inline-block !important; width: 73px !important; margin: 0px 5px !important; }
-.chef-expand-button:hover, .chef-float-button:hover, .chef-command:hover { background-color: var(--background-color1); }
-.chef-menuitem {}
-.chef-generic { font-family: var(--font-family); font-weight: 500; font-size: 11px; text-align: left; letter-spacing: 1px; }
-.chef-generic { color: var(--color); padding: 13px 10px; }
-.chef-table tr { border-bottom: var(--border-color) 1px solid; }
-.chef-table tr:nth-child(even) { background-color:var(--background-color1); }
-.chef-table tr:nth-child(odd)  { background-color:var(--background-color2); }
-.chef-table th { font-weight: bold; }
-.chef-table td, th { padding: 0 4px; }
-.chef-left { text-align: left; }
-.chef-center { text-align: center; }
-.chef-right { text-align: right; }
-
+:host{--pure-black:#000;--nav-black:#111;--light-black:#171717;--medium-black:#222;--black:#333;--dark-gray:#555;--gray:#777;--light-gray:#999;--disabled-white:#aaa;--white:#ccc;--pure-white:#fff;--js-blue:#76afe8;--title-blue:#42affa;--yellow:#ffffa4;--red:#ff3d3d;--surfie-green:#107187;--coral-atoll:#0E6073;--tiber:#093640;--eden:#0D4A56;--top:30px;--bottom:30px;--left:30px;--right:30px;--width:250px;--font-family:Arial,sans-serif;--z-index:1;--color:var(--pure-white);--border-color:var(--pure-white);--background-color1:var(--surfie-green);--background-color2:var(--coral-atoll);--background-color3:var(--tiber);--background-color4:var(--eden);--width-expand-float:24px;--width-h1:calc(var(--width) - var(--width-expand-float));--width-h2:calc(var(--width) - 2*var(--width-expand-float))}
+#toolbar.bottom-left{bottom:var(--bottom);left:var(--left)}
+#toolbar.bottom-right{bottom:var(--bottom);right:var(--right)}
+#toolbar.top-left{top:var(--top);left:var(--left)}
+#toolbar.top-right{top:var(--top);right:var(--right)}
+.chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-input,.chef-label,.chef-line,.chef-list,.chef-menuitem,.chef-nav,.chef-select,.chef-toolbar{margin:0;padding:0}
+.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-list,.chef-menuitem,.chef-nav,.chef-toolbar{line-height:24px}
+.chef-after,.chef-command,.chef-input,.chef-label,.chef-line,.chef-select{line-height:26px;height:20px}
+.chef-select{line-height:26px;height:26px}
+.chef-command{line-height:18px;height:22px}
+.chef-generic{line-height:14px}
+.chef-toolbar{position:absolute;width:var(--width);z-index:var(--z-index)}
+.chef-toolbar{border-style:solid;border-color:var(--gray) var(--light-gray) var(--light-gray) var(--gray);border-width:1px 2px 2px 1px;cursor:default}
+.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-menuitem{border-width:1px 0 0 0;border-style:solid;border-color:var(--border-color);cursor:pointer}
+.chef-h1{display:block;width:var(--width-h1)}
+.chef-h2{display:block;width:var(--width-h2)}
+.chef-line,.chef-menuitem{display:block;width:100%}
+.chef-h1,.chef-h2,.chef-menuitem{font-family:var(--font-family);font-weight:900;font-size:14px;letter-spacing:1px;text-align:left}
+.chef-h1,.chef-h2,.chef-menuitem{color:var(--color);background-color:var(--background-color3)}
+.chef-h1,.chef-h2,.chef-menuitem{text-indent:10px}
+.chef-h1:hover,.chef-h2:hover,.chef-menuitem:hover{background-color:var(--background-color1)}
+.chef-nav+.chef-line{border-top:dotted 1px var(--pure-black)}
+.chef-line{display:none}
+.chef-line{margin-right:10px;padding:10px 0 20px 0}
+.chef-line{font-family:var(--font-family);font-weight:500;font-size:11px}
+.chef-line{color:var(--color);background-color:var(--background-color4)}
+.chef-label{position:absolute;text-align:right;width:110px}
+.chef-input{margin-left:120px;padding:2px;width:50px}
+.chef-input[disabled]{background-color:var(--disabled-white);color:var(--color)}
+.chef-slider{margin:0 20px;width:calc(100% - 40px)}
+.chef-after{margin-left:10px;overflow:hidden}
+.chef-select{margin-left:120px;padding:2px;width:120px}
+.chef-command,.chef-expand-button,.chef-float-button{font-family:Arial;font-weight:700;font-size:14px;text-align:center;letter-spacing:1px}
+.chef-command:focus,.chef-expand-button:focus,.chef-float-button:focus,.chef-h1:focus,.chef-h2:focus,.chef-menuitem:focus{outline:1px dotted var(--disabled-white);outline-offset:-3px}
+.chef-expand-button,.chef-float-button{float:right}
+.chef-expand-button,.chef-float-button{width:24px;border-left:1px solid var(--border-color)}
+.chef-expand-button,.chef-float-button{color:var(--color);background-color:var(--background-color2)}
+.chef-command{display:block;width:90%;margin:0 auto}
+.chef-command{color:var(--color);background-color:var(--background-color2);border:1px solid var(--border-color);border-radius:3px;cursor:pointer}
+.chef-one-third-command{display:inline-block!important;width:73px!important;margin:0 5px!important}
+.chef-command:hover,.chef-expand-button:hover,.chef-float-button:hover{background-color:var(--background-color1)}
+.chef-generic{font-family:var(--font-family);font-weight:500;font-size:11px;text-align:left;letter-spacing:1px}
+.chef-generic{color:var(--color);padding:13px 10px}
+.chef-table tr{border-bottom:var(--border-color) 1px solid}
+.chef-table tr:nth-child(even){background-color:var(--background-color1)}
+.chef-table tr:nth-child(odd){background-color:var(--background-color2)}
+.chef-table th{font-weight:700}
+.chef-table td,th{padding:0 4px}
+.chef-left{text-align:left}
+.chef-center{text-align:center}
+.chef-right{text-align:right}
