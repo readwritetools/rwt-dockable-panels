@@ -1,16 +1,13 @@
 {
   "name": "rwt-dockable-panels",
-  "version": "1.0.6",
-  "description": "Collapsable and dockable panels, a standards-based DOM Component",
+  "version": "1.0.9",
+  "description": "Expand, collapse, dock and float accordion-style, standards-based DOM component",
   "author": "Read Write Tools",
-  "license": "MIT",
+  "license": "see license.html",
   "module": "rwt-dockable-panels.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/readwritetools/rwt-dockable-panels.git"
-  },
-  "scripts": {
-    "bump-version": "npm version patch && git push && git push --tags"
   },
   "keywords": [
     "web-component",
@@ -24,8 +21,12 @@
   },
   "homepage": "https://hub.readwritetools.com/components/dockable-panels.blue",
   "files": [
-    "rwt-dockable-panels.blue",
+    "img",
+    "license.html",
+    "readme.md",
     "rwt-dockable-panels.css",
-    "rwt-dockable-panels.js"
+    "rwt-dockable-panels.html",
+    "rwt-dockable-panels.js",
+    "rwt-registration-keys.js"
   ]
 }
