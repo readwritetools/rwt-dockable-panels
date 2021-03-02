@@ -34,7 +34,7 @@ export default class RwtDockablePanels extends HTMLElement {
             }), this.shadowRoot.appendChild(e), this.shadowRoot.appendChild(t), this.style.touchAction = 'none', 
             this.style.userSelect = 'none', this.identifyChildren(), this.determineCorner(), 
             await this.getConfiguredPanels(), this.determineInitialState(), this.registerEventListeners(), 
-            this.sendComponentLoaded();
+            this.sendComponentLoaded(), this.validate();
         } catch (e) {
             console.log(e.message);
         }
@@ -199,24 +199,24 @@ export default class RwtDockablePanels extends HTMLElement {
         isNaN(r) && (r = 100);
         var l = parseFloat(t.stepPosition);
         isNaN(l) && (l = 1);
-        var s = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', p = t.curve || 'linear', c = null;
-        c = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == p ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
+        var s = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', c = t.curve || 'linear', p = null;
+        p = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
         var h = null;
-        h = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == p ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
+        h = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
         var u = null;
         u = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
         var m = null;
         m = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
         this.createLineWrapper(e).innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
         this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${r}' step='${l}'></input>`;
-        var b = this.shadowRoot.getElementById(`${t.id}`), f = this.shadowRoot.getElementById(`${t.id}-slider`);
-        b.addEventListener('change', (e => {
-            var t = b.value, n = m(t), o = c(n);
+        var f = this.shadowRoot.getElementById(`${t.id}`), b = this.shadowRoot.getElementById(`${t.id}-slider`);
+        f.addEventListener('change', (e => {
+            var t = f.value, n = m(t), o = p(n);
             t = u(n);
-            b.value = t, f.value = o;
-        })), f.addEventListener('input', (e => {
-            var t = parseFloat(f.value), n = h(t), o = u(n);
-            b.value = o;
+            f.value = t, b.value = o;
+        })), b.addEventListener('input', (e => {
+            var t = parseFloat(b.value), n = h(t), o = u(n);
+            f.value = o;
         }));
     }
     fromSliderLinear(e) {
@@ -458,6 +458,47 @@ export default class RwtDockablePanels extends HTMLElement {
     pxToNum(e) {
         var t = e.indexOf('px');
         return -1 != t && (e = e.substr(0, t)), parseInt(e);
+    }
+    async validate() {
+        if (1 == this.instance) {
+            var e = (a = window.location.hostname).split('.'), t = 25;
+            if (e.length >= 2) {
+                var n = e[e.length - 2].charAt(0);
+                (n < 'a' || n > 'z') && (n = 'q'), t = n.charCodeAt(n) - 97, t = Math.max(t, 0), 
+                t = Math.min(t, 25);
+            }
+            var o = new Date;
+            o.setUTCMonth(0, 1), (Math.floor((Date.now() - o) / 864e5) + 1) % 26 == t && window.setTimeout(this.authenticate.bind(this), 5e3);
+            var a = window.location.hostname, i = `Unregistered ${Static.componentName} component.`;
+            try {
+                var r = (await import('../../rwt-registration-keys.js')).default;
+                for (let e = 0; e < r.length; e++) {
+                    var l = r[e];
+                    if (l.hasOwnProperty('product-key') && l['product-key'] == Static.componentName) return void (a != l.registration && console.warn(`${i} See https://readwritetools.com/licensing.blue to learn more.`));
+                }
+                console.warn(`${i} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
+            } catch (e) {
+                console.warn(`${i} rwt-registration-key.js missing from website's root directory.`);
+            }
+        }
+    }
+    async authenticate() {
+        var e = encodeURIComponent(window.location.hostname), t = encodeURIComponent(window.location.href), n = encodeURIComponent(Registration.registration), o = encodeURIComponent(Registration['customer-number']), a = encodeURIComponent(Registration['access-key']), i = {
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'omit',
+            cache: 'no-cache',
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded'
+            },
+            body: `product-name=${Static.componentName}&hostname=${e}&href=${t}&registration=${n}&customer-number=${o}&access-key=${a}`
+        };
+        try {
+            var r = await fetch('https://validation.readwritetools.com/v1/genuine/component', i);
+            if (200 == r.status) await r.json();
+        } catch (e) {
+            console.info(e.message);
+        }
     }
 }
 
