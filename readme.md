@@ -123,26 +123,31 @@ it:
 
       * For scripting purposes, apply an `id` attribute.
       * For WAI-ARIA accessibility apply a `role=contentinfo` attribute.
-      * Apply a `corner` attribute with one of these values
+      * Apply a `corner` attribute with one of these values to set the location of the
+         toolbar relative to its parent.
 
-         * top-left
-         * top-right
-         * bottom-left
-         * bottom-right
+         * `top-right`
+         * `top-left`
+         * `bottom-right`
+         * `bottom-left` [default]
       * Apply a `sourceref` attribute with a reference to a JSON file containing the panel
          configuration. (Or optionally use the programmatic interface for panel
          configuration.)
-      * Optionally, apply an `open` or `closed` attribute to set the initial state of the
-         toolbar
+      * Optionally, apply a `state` attribute to set the initial state of the toolbar.
+
+         * `closed` The toolbar menu should initially be collapsed.
+         * `open` [default] The toolbar menu should initially be expanded.
+
+Example:
+
 ```html
-<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right role=contentinfo open></rwt-dockable-panels>
+<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right state=open role=contentinfo></rwt-dockable-panels>
 ```
 
-
-#### Panel configuration
+### Panel configuration
 
 The panels can be configured programmatically or through a JSON file. Both
-accept similar objects.
+accept similar objects, described here:
 
 #### JSON file configuration
 
@@ -175,7 +180,19 @@ These are the possible lineTypes and their configuration properties:
       * `id` the identifier for the INPUT element
       * `textAfter` any text to place after the INPUT element, optional
       * `tooltip` the fly-over popup title for the INPUT element, optional
-   2. `"dropdown"`
+   2. `"button"`
+
+      * `buttonText` the text to place on the BUTTON element
+      * `id` the identifier for the BUTTON element
+      * `tooltip` the fly-over popup title for the BUTTON element, optional
+   3. `"multi-button"`
+
+      * `buttons` an array of objects to define each button, having:
+
+         * `buttonText` the text to place on the BUTTON element
+         * `id` the identifier for the BUTTON element
+         * `tooltip` the fly-over popup title for the BUTTON element, optional
+   4. `"dropdown"`
 
       * `labelText` the text to place before the SELECT element
       * `id` the identifier for the SELECT element
@@ -184,23 +201,49 @@ These are the possible lineTypes and their configuration properties:
 
          * `v` the OPTION value
          * `t` the OPTION text
-   3. `"button"`
+   5. `"slider+input"`
 
-      * `buttonText` the text to place on the BUTTON element
-      * `id` the identifier for the BUTTON element
-      * `tooltip` the fly-over popup title for the BUTTON element, optional
-   4. `"multi-button"`
-
-      * `buttons` an array of objects to define each button, having:
-
-         * `buttonText` the text to place on the BUTTON element
-         * `id` the identifier for the BUTTON element
-         * `tooltip` the fly-over popup title for the BUTTON element, optional
-   5. `"generic"`
+      * `id` is the identifier to be assigned to the text <INPUT> being created (the range
+         slider will append "-slider" to this id)
+      * `curve` is the distribution of slider values: "callback", "linear" or "log";
+         defaults to linear if not defined
+      * `fromSlider` is a callback function that synchronizes <INPUT> value when the
+         current slider position changes
+      * `toSlider` is a callback function that synchronizes the current slider position
+         when the <INPUT> value changes
+      * `fromUser` is a callback function to convert user text to internal value
+      * `toUser` is a callback function to convert internal value to user text
+      * `numDecimals` is the number of decimal points kept in the internal value (defaults
+         to 2).
+      * `minValue` is the minimum acceptable "value" in user units; defaults to "" if not
+         specified
+      * `maxValue` is the maximum acceptable "value" in user units; defaults to "" if not
+         specified
+      * `minPosition` is the minimum slider position; defaults to 0 if not specified
+      * `maxPosition` is the maximum slider position; defaults to 100 if not specified
+      * `stepPosition` is the accuracy of the slider; defaults to 1 if not specified
+      * `labelText` is the text to be displayed in the <LABEL> before the two <INPUT>
+         elements
+      * `tooltip` is the text to display on hover, optional
+      * `widthInPx` is a string value specifying the width of the input field, with a
+         trailing 'px', optional
+      * `textAfter` is the optional short text to display after the INPUT, optional
+   6. `"generic"`
 
       * `id` the identifier for the DIV element
       * `heightInPx` the height of the DIV element, specified with "px"
       * `overflowY` Whether to show the scrollbar, either "scroll" or "hidden"
+   7. `"table"`
+
+      * `id` is the identifier to be assigned to the <TABLE> being created
+      * `innerHTML` is the HTML to start with
+      * `minHeightInPx` is a number of pixels, expressed as a string ending in 'px', like
+         '156px'
+      * `maxHeightInPx` is a number of pixels, expressed as a string ending in 'px', like
+         '156px'
+      * `heightInPx` is a number of pixels, expressed as a string ending in 'px', like
+         '156px'
+      * `overflowY` is either 'scroll' or 'hidden' or 'auto', optional
 
 #### Programmatic configuration
 
@@ -212,7 +255,7 @@ with the same properties as just described. The methods are:
 	<dt>setTitlebar (html)</dt>
 	<dd>sets the topmost menu titlebar</dd>
 	<dt>appendPanel (panelId, options, panelLines)</dt>
-	<dd>creates a new panel and adds it to the component</dd>
+	<dd>creates a new panel and adds it to the component, returning <code>elPanel</code> which can be used in subsequent API methods.</dd>
 	<dt>appendInputLine (elPanel, options)</dt>
 	<dd>creates a line with a label and an input</dd>
 	<dt>appendDropdown (elPanel, options)</dt>
@@ -236,14 +279,32 @@ its panels.
 	<dd>shows all the panels in their current expand/collapse state</dd>
 	<dt>closeToolbar ()</dt>
 	<dd>leaves only the Star button visible</dd>
-	<dt>expandPanel (menuID)</dt>
+	<dt>expandPanel (panelID)</dt>
 	<dd>shows all of the panel's lines</dd>
-	<dt>collapsePanel (menuID)</dt>
+	<dt>collapsePanel (panelID)</dt>
 	<dd>shows only the panel's titlebar</dd>
-	<dt>detachPanel (menuID)</dt>
+	<dt>detachPanel (panelID)</dt>
 	<dd>detaches the panel from the toolbar, allowing it to float independently</dd>
-	<dt>attachPanel (menuID)</dt>
+	<dt>attachPanel (panelID)</dt>
 	<dd>reattaches the panel to the toolbar</dd>
+	<dt>presetDetachablePanelPosition(panelID, top, left, bottom, right)</dt>
+	<dd>overrides the default future position of a detachable panel. The positional parameters must be in CSS notation, like "10px", "3rem", etc. Only two of the four position values are relevant, depending upon which corner the menu is anchored to.</dd>
+</dl>
+
+#### Programmatic access
+
+The component has methods to access the inner buttons and titlebars.
+
+
+<dl>
+	<dt>getMenuElement (panelID)</dt>
+	<dd>returns the panel with the given identifer</dd>
+	<dt>getExpandButton (panelID)</dt>
+	<dd>returns the expand/collapse button for a given panel</dd>
+	<dt>getFloatButton (panelID)</dt>
+	<dd>returns the float/dock button for a given panel</dd>
+	<dt>getTitlebar (panelID)</dt>
+	<dd>returns the titlebar for a given panel</dd>
 </dl>
 
 ### Customization

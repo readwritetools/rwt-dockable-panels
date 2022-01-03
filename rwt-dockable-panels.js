@@ -103,7 +103,7 @@ export default class RwtDockablePanels extends HTMLElement {
         }
     }
     determineInitialState() {
-        this.hasAttribute('open') ? this.openToolbar() : this.hasAttribute('closed') ? this.closeToolbar() : this.openToolbar();
+        this.hasAttribute('state') && 'closed' == this.getAttribute('state') ? this.closeToolbar() : this.openToolbar();
     }
     registerEventListeners() {
         this.shadowRoot.getElementById('toolbar-titlebar').addEventListener('pointerdown', this.onPointerdownToolbar.bind(this)), 
@@ -203,19 +203,19 @@ export default class RwtDockablePanels extends HTMLElement {
         p = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
         var h = null;
         h = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
-        var u = null;
-        u = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
         var m = null;
-        m = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
+        m = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
+        var u = null;
+        u = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
         this.createLineWrapper(e).innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
         this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${r}' step='${l}'></input>`;
         var f = this.shadowRoot.getElementById(`${t.id}`), b = this.shadowRoot.getElementById(`${t.id}-slider`);
         f.addEventListener('change', (e => {
-            var t = f.value, n = m(t), o = p(n);
-            t = u(n);
+            var t = f.value, n = u(t), o = p(n);
+            t = m(n);
             f.value = t, b.value = o;
         })), b.addEventListener('input', (e => {
-            var t = parseFloat(b.value), n = h(t), o = u(n);
+            var t = parseFloat(b.value), n = h(t), o = m(n);
             f.value = o;
         }));
     }
@@ -365,6 +365,15 @@ export default class RwtDockablePanels extends HTMLElement {
     attachPanel(e) {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
         t && n && this.floatDockHelper(t, n, 'dock');
+    }
+    presetDetachablePanelPosition(e, t, n, o, a) {
+        var i = this.getMenuElement(e);
+        'MENU' == i.tagName && (i.savePosition = {
+            top: t,
+            left: n,
+            bottom: o,
+            right: a
+        });
     }
     onClickFloatButton(e) {
         var t = e.target;
