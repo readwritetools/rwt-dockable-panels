@@ -255,17 +255,114 @@ with the same properties as just described. The methods are:
 	<dt>setTitlebar (html)</dt>
 	<dd>sets the topmost menu titlebar</dd>
 	<dt>appendPanel (panelId, options, panelLines)</dt>
-	<dd>creates a new panel and adds it to the component, returning <code>elPanel</code> which can be used in subsequent API methods.</dd>
+	<dd>
+		<span>creates a new panel and adds it to the component, returning <code>elPanel</code> which can be used in subsequent API methods.</span>
+		<ul>
+			<li><code>panelID</code> is a String which will be the identifer for the panel</li>
+			<li><code>options</code> is an anonymous object having:</li>
+			<ul>
+				<li><code>titlebar</code> String</li>
+				<li><code>expandable</code> Boolean, defaults to true</li>
+				<li><code>dockable</code> Boolean, defaults to true</li>
+				<li><code>tabIndex</code> Number</li>
+				<li><code>tooltip</code> String</li>
+			</ul>
+			<li><code>panelLines</code> is an array of anonymous objects each containing the <code>options</code> for a single line within the panel area below the titlebar, and where the <code>lineType</code> determines which other properties are used.</li>
+		</ul>
+	</dd>
 	<dt>appendInputLine (elPanel, options)</dt>
-	<dd>creates a line with a label and an input</dd>
-	<dt>appendDropdown (elPanel, options)</dt>
-	<dd>creates a line with a label and a select element</dd>
+	<dd>
+		<span>The appendInputLine function creates a line with a label and an input. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'input'</code></li>
+			<li><code>labelText</code> the text to place before the INPUT element</li>
+			<li><code>id</code> the identifier for the INPUT element</li>
+			<li><code>textAfter</code> any text to place after the INPUT element, optional</li>
+			<li><code>tooltip</code> the fly-over popup title for the INPUT element, optional</li>
+		</ul>
+	</dd>
 	<dt>appendSingleButton (elPanel, options)</dt>
-	<dd>creates an internal button for doing something user-defined</dd>
+	<dd>
+		<span>creates an internal button for doing something user-defined. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'button'</code></li>
+			<li><code>buttonText</code> the text to place on the BUTTON element</li>
+			<li><code>id</code> the identifier for the BUTTON element</li>
+			<li><code>tooltip</code> the fly-over popup title for the BUTTON element, optional</li>
+		</ul>
+	</dd>
 	<dt>appendMultiButtons (elPanel, options)</dt>
-	<dd>creates multiple buttons that logically work together and visually appear on one line</dd>
+	<dd>
+		<span>creates multiple buttons that logically work together and visually appear on one line. The possible <code>options</code> are:</span>
+		<span><code>buttons</code> is an array of objects, each having:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'multi-button'</code></li>
+			<li><code>buttonText</code> the text to place on the BUTTON element</li>
+			<li><code>id</code> the identifier for the BUTTON element</li>
+			<li><code>tooltip</code> the fly-over popup title for the BUTTON element, optional</li>
+		</ul>
+	</dd>
+	<dt>appendDropdown (elPanel, options)</dt>
+	<dd>
+		<span>creates a line with a label and a select element. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'dropdown'</code></li>
+			<li><code>labelText</code> the text to place before the SELECT element</li>
+			<li><code>id</code> the identifier for the SELECT element</li>
+			<li><code>tooltip</code> the fly-over popup title for the SELECT element, optional</li>
+			<li><code>selections</code> an array of OPTIONS, specified as objects, each having:</li>
+			<ul>
+				<li><code>v</code> the OPTION value</li>
+				<li><code>t</code> the OPTION text</li>
+			</ul>
+		</ul>
+	</dd>
+	<dt>appendSliderWithInput (elPanel, options)</dt>
+	<dd>
+		<span>creates a line with a label and two INPUTs: a slider/input combo. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'slider+input'</code></li>
+			<li><code>id</code> is the identifier to be assigned to the text &lt;INPUT&gt; being created (the range slider will append "-slider" to this id)</li>
+			<li><code>curve</code> is the distribution of slider values: "callback", "linear" or "log"; defaults to linear if not defined</li>
+			<li><code>fromSlider</code> is a callback function that synchronizes &lt;INPUT&gt; value when the current slider position changes</li>
+			<li><code>toSlider</code> is a callback function that synchronizes the current slider position when the &lt;INPUT&gt; value changes</li>
+			<li><code>fromUser</code> is a callback function to convert user text to internal value</li>
+			<li><code>toUser</code> is a callback function to convert internal value to user text</li>
+			<li><code>numDecimals</code> is the number of decimal points kept in the internal value (defaults to 2).</li>
+			<li><code>minValue</code> is the minimum acceptable "value" in user units; defaults to "" if not specified</li>
+			<li><code>maxValue</code> is the maximum acceptable "value" in user units; defaults to "" if not specified</li>
+			<li><code>minPosition</code> is the minimum slider position; defaults to 0 if not specified</li>
+			<li><code>maxPosition</code> is the maximum slider position; defaults to 100 if not specified</li>
+			<li><code>stepPosition</code> is the accuracy of the slider; defaults to 1 if not specified</li>
+			<li><code>labelText</code> is the text to be displayed in the &lt;LABEL&gt; before the two &lt;INPUT&gt; elements</li>
+			<li><code>tooltip</code> is the text to display on hover, optional</li>
+			<li><code>widthInPx</code> is a string value specifying the width of the input field, with a trailing 'px', optional</li>
+			<li><code>textAfter</code> is the optional short text to display after the INPUT, optional</li>
+		</ul>
+	</dd>
 	<dt>appendGenericArea (elPanel, options)</dt>
-	<dd>creates a div suitable for use with dynamic HTML</dd>
+	<dd>
+		<span>creates a &lt;div&gt; suitable for use with dynamic HTML. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'generic'</code></li>
+			<li><code>id</code> the identifier for the DIV element</li>
+			<li><code>heightInPx</code> the height of the DIV element, specified with "px"</li>
+			<li><code>overflowY</code> Whether to show the scrollbar, either "scroll" or "hidden"</li>
+		</ul>
+	</dd>
+	<dt>appendTableArea (elPanel, options)</dt>
+	<dd>
+		<span>creates a &lt;table&gt; suitable for use with dynamic HTML. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'table'</code></li>
+			<li><code>id</code> is the identifier to be assigned to the &lt;TABLE&gt; being created</li>
+			<li><code>innerHTML</code> is the HTML to start with</li>
+			<li><code>minHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
+			<li><code>maxHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
+			<li><code>heightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
+			<li><code>overflowY</code> is either 'scroll' or 'hidden' or 'auto', optional</li>
+		</ul>
+	</dd>
 </dl>
 
 #### Programmatic manipulation
