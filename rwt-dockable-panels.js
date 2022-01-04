@@ -209,14 +209,14 @@ export default class RwtDockablePanels extends HTMLElement {
         u = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
         this.createLineWrapper(e).innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
         this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${r}' step='${l}'></input>`;
-        var f = this.shadowRoot.getElementById(`${t.id}`), b = this.shadowRoot.getElementById(`${t.id}-slider`);
-        f.addEventListener('change', (e => {
-            var t = f.value, n = u(t), o = p(n);
+        var b = this.shadowRoot.getElementById(`${t.id}`), f = this.shadowRoot.getElementById(`${t.id}-slider`);
+        b.addEventListener('change', (e => {
+            var t = b.value, n = u(t), o = p(n);
             t = m(n);
-            f.value = t, b.value = o;
-        })), b.addEventListener('input', (e => {
-            var t = parseFloat(b.value), n = h(t), o = m(n);
-            f.value = o;
+            b.value = t, f.value = o;
+        })), f.addEventListener('input', (e => {
+            var t = parseFloat(f.value), n = h(t), o = m(n);
+            b.value = o;
         }));
     }
     fromSliderLinear(e) {
@@ -349,6 +349,7 @@ export default class RwtDockablePanels extends HTMLElement {
         }
     }
     expandCollapseHelper(e, t, n) {
+        e.isTopmostMenu ? e.style.display = 'block' : e.isDocked ? this.toolbar.isExpanded ? e.style.display = 'block' : e.style.display = 'none' : e.style.display = 'block';
         for (var o = 0; o < e.children.length; o++) {
             var a = e.children[o];
             (e.isTopmostMenu && ('chef-list' == a.className || 'chef-menuitem' == a.className) || !e.isTopmostMenu && 'chef-line' == a.className) && (a.style.display = 'expand' == n ? 'block' : 'none');
