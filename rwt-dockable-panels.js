@@ -327,6 +327,9 @@ export default class RwtDockablePanels extends HTMLElement {
     closeToolbar() {
         this.expandCollapseHelper(this.toolbar, this.toolbarExpandButton, 'collapse');
     }
+    toggleToolbar() {
+        this.toolbar.isExpanded ? this.closeToolbar() : this.openToolbar();
+    }
     expandPanel(e) {
         var t = this.getMenuElement(e), n = this.getExpandButton(e);
         t && n && this.expandCollapseHelper(t, n, 'expand');

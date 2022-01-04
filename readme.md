@@ -375,7 +375,9 @@ its panels.
 	<dt>openToolbar ()</dt>
 	<dd>shows all the panels in their current expand/collapse state</dd>
 	<dt>closeToolbar ()</dt>
-	<dd>leaves only the Star button visible</dd>
+	<dd>leaves only the 'hamburger' button visible</dd>
+	<dt>toggleToolbar ()</dt>
+	<dd>reverse the current toolbar expand/collapse state</dd>
 	<dt>expandPanel (panelID)</dt>
 	<dd>shows all of the panel's lines</dd>
 	<dt>collapsePanel (panelID)</dt>
