@@ -94,7 +94,9 @@ export default class RwtDockablePanels extends HTMLElement {
                 if (200 != t.status && 304 != t.status) return null;
                 var n = await t.json();
                 if (n.toolbar && n.toolbar.titlebar && this.setTitlebar(n.toolbar.titlebar), n.panels) for (let e = 0; e < n.panels.length; e++) {
-                    var o = n.panels[e].options, a = n.panels[e].panelLines;
+                    var o = n.panels[e].options;
+                    o.tabIndex = 103 + 3 * e;
+                    var a = n.panels[e].panelLines;
                     o && a && this.appendPanel(o.id, o, a);
                 }
             } catch (e) {

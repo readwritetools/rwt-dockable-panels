@@ -4,8 +4,8 @@
 #toolbar.bottom-right{bottom:var(--bottom);right:var(--right)}
 #toolbar.top-left{top:var(--top);left:var(--left)}
 #toolbar.top-right{top:var(--top);right:var(--right)}
-.chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-input,.chef-label,.chef-line,.chef-list,.chef-menuitem,.chef-nav,.chef-select,.chef-toolbar{margin:0;padding:0}
-.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-list,.chef-menuitem,.chef-nav,.chef-toolbar{line-height:24px}
+.chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-line,.chef-list,.chef-menuitem,.chef-nav,.chef-select,.chef-toolbar{margin:0;padding:0}
+.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-list,.chef-menuitem,.chef-nav,.chef-toolbar{line-height:24px}
 .chef-after,.chef-command,.chef-input,.chef-label,.chef-line,.chef-select{line-height:26px;height:20px}
 .chef-select{line-height:26px;height:26px}
 .chef-command{line-height:18px;height:22px}
@@ -15,10 +15,11 @@
 .chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-menuitem{border-width:1px 0 0 0;border-style:solid;border-color:var(--border-color);cursor:pointer}
 .chef-h1{display:block;width:var(--width-h1)}
 .chef-h2{display:block;width:var(--width-h2)}
+.chef-h3{border-width:0}
 .chef-line,.chef-menuitem{display:block;width:100%}
-.chef-h1,.chef-h2,.chef-menuitem{font-family:var(--font-family);font-weight:900;font-size:14px;letter-spacing:1px;text-align:left}
-.chef-h1,.chef-h2,.chef-menuitem{color:var(--color);background-color:var(--background-color3)}
-.chef-h1,.chef-h2,.chef-menuitem{text-indent:10px}
+.chef-h1,.chef-h2,.chef-h3,.chef-menuitem{font-family:var(--font-family);font-weight:900;font-size:14px;letter-spacing:1px;text-align:left}
+.chef-h1,.chef-h2,.chef-h3,.chef-menuitem{color:var(--color);background-color:var(--background-color3)}
+.chef-h1,.chef-h2,.chef-h3,.chef-menuitem{text-indent:10px}
 .chef-h1:hover,.chef-h2:hover,.chef-menuitem:hover{background-color:var(--background-color1)}
 .chef-nav+.chef-line{border-top:dotted 1px var(--pure-black)}
 .chef-line{display:none}
