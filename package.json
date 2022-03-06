@@ -28,5 +28,15 @@
     "rwt-dockable-panels.html",
     "rwt-dockable-panels.js",
     "rwt-registration-keys.js"
-  ]
+  ],
+  "readwritetools": {
+    "modules": {
+      "esmodules": true,
+      "commonjs": false
+    },
+    "suitability": {
+      "browser": "api",
+      "nodejs": "none"
+    }
+  }
 }

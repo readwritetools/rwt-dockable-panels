@@ -2,8 +2,9 @@
 const Static = {
     componentName: 'rwt-dockable-panels',
     elementInstance: 1,
-    htmlURL: '/node_modules/rwt-dockable-panels/rwt-dockable-panels.html',
-    cssURL: '/node_modules/rwt-dockable-panels/rwt-dockable-panels.css',
+    componentPath: '/',
+    htmlURL: 'rwt-dockable-panels.html',
+    cssURL: 'rwt-dockable-panels.css',
     htmlText: null,
     cssText: null,
     nextId: 1,
@@ -28,6 +29,7 @@ export default class RwtDockablePanels extends HTMLElement {
     }
     async connectedCallback() {
         if (this.isConnected) try {
+            this.determineComponentPath();
             var e = await this.getHtmlFragment(), t = await this.getCssStyleElement();
             this.attachShadow({
                 mode: 'open'
@@ -39,6 +41,11 @@ export default class RwtDockablePanels extends HTMLElement {
             console.log(e.message);
         }
     }
+    determineComponentPath() {
+        Static.componentPath = new URL(import.meta.url).pathname;
+        var e = Static.componentPath.lastIndexOf('/');
+        -1 != e && (Static.componentPath = Static.componentPath.substr(0, e + 1));
+    }
     getHtmlFragment() {
         return new Promise((async (e, t) => {
             var n = `${Static.componentName}-html-template-ready`;
@@ -46,12 +53,12 @@ export default class RwtDockablePanels extends HTMLElement {
                 var t = document.createElement('template');
                 t.innerHTML = Static.htmlText, e(t.content);
             })), 1 == this.instance) {
-                var o = await fetch(Static.htmlURL, {
+                var o = `${Static.componentPath}${Static.htmlURL}`, a = await fetch(o, {
                     cache: 'no-cache',
                     referrerPolicy: 'no-referrer'
                 });
-                if (200 != o.status && 304 != o.status) return void t(new Error(`Request for ${Static.htmlURL} returned with ${o.status}`));
-                Static.htmlText = await o.text(), document.dispatchEvent(new Event(n));
+                if (200 != a.status && 304 != a.status) return void t(new Error(`Request for ${o} returned with ${a.status}`));
+                Static.htmlText = await a.text(), document.dispatchEvent(new Event(n));
             } else null != Static.htmlText && document.dispatchEvent(new Event(n));
         }));
     }
@@ -62,12 +69,12 @@ export default class RwtDockablePanels extends HTMLElement {
                 var t = document.createElement('style');
                 t.innerHTML = Static.cssText, e(t);
             })), 1 == this.instance) {
-                var o = await fetch(Static.cssURL, {
+                var o = `${Static.componentPath}${Static.cssURL}`, a = await fetch(o, {
                     cache: 'no-cache',
                     referrerPolicy: 'no-referrer'
                 });
-                if (200 != o.status && 304 != o.status) return void t(new Error(`Request for ${Static.cssURL} returned with ${o.status}`));
-                Static.cssText = await o.text(), document.dispatchEvent(new Event(n));
+                if (200 != a.status && 304 != a.status) return void t(new Error(`Request for ${o} returned with ${a.status}`));
+                Static.cssText = await a.text(), document.dispatchEvent(new Event(n));
             } else null != Static.cssText && document.dispatchEvent(new Event(n));
         }));
     }
