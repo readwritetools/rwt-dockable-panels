@@ -116,7 +116,8 @@ export default class RwtDockablePanels extends HTMLElement {
     }
     registerEventListeners() {
         this.shadowRoot.getElementById('toolbar-titlebar').addEventListener('pointerdown', this.onPointerdownToolbar.bind(this)), 
-        this.shadowRoot.getElementById('toolbar-expand-button').addEventListener('click', this.onClickExpandButton.bind(this));
+        this.shadowRoot.getElementById('toolbar-expand-button').addEventListener('click', this.onClickExpandButton.bind(this)), 
+        document.addEventListener('collapse-popup', this.onCollapsePopup.bind(this));
     }
     sendComponentLoaded() {
         this.isComponentLoaded = !0, this.dispatchEvent(new Event('component-loaded', {
@@ -366,10 +367,20 @@ export default class RwtDockablePanels extends HTMLElement {
             var a = e.children[o];
             (e.isTopmostMenu && ('chef-list' == a.className || 'chef-menuitem' == a.className) || !e.isTopmostMenu && 'chef-line' == a.className) && (a.style.display = 'expand' == n ? 'block' : 'none');
         }
-        e.isTopmostMenu && (this.toolbarTitlebar.style.display = 'expand' == n ? 'block' : 'none', 
-        e.style.width = 'expand' == n ? 'var(--width)' : '24px'), e.isTopmostMenu ? t.innerHTML = 'expand' == n ? Static.TOPMOST_OPEN : Static.TOPMOST_CLOSED : t.innerHTML = 'expand' == n ? Static.COLLAPSE : Static.EXPAND, 
-        e.isTopmostMenu ? t.title = 'expand' == n ? 'Close' : 'Open' : t.title = 'expand' == n ? 'Show less' : 'Show more', 
-        e.isExpanded = 'expand' == n;
+        1 == e.isTopmostMenu ? 'expand' == n ? (this.toolbarTitlebar.style.display = 'block', 
+        e.style.width = 'var(--width)', t.innerHTML = Static.TOPMOST_OPEN, t.title = 'Close', 
+        this.collapseOtherPopups()) : (this.toolbarTitlebar.style.display = 'none', e.style.width = '24px', 
+        t.innerHTML = Static.TOPMOST_CLOSED, t.title = 'Open') : 'expand' == n ? (t.innerHTML = Static.COLLAPSE, 
+        t.title = 'Show less') : (t.innerHTML = Static.EXPAND, t.title = 'Show more'), e.isExpanded = 'expand' == n;
+    }
+    collapseOtherPopups() {
+        var e = new CustomEvent('collapse-popup', {
+            detail: this.collapseSender
+        });
+        document.dispatchEvent(e);
+    }
+    onCollapsePopup(e) {
+        e.detail != this.collapseSender && this.closeToolbar();
     }
     detachPanel(e) {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
@@ -381,7 +392,7 @@ export default class RwtDockablePanels extends HTMLElement {
     }
     presetDetachablePanelPosition(e, t, n, o, a) {
         var i = this.getMenuElement(e);
-        'MENU' == i.tagName && (i.savePosition = {
+        null != i && 'MENU' == i.tagName && (i.savePosition = {
             top: t,
             left: n,
             bottom: o,
