@@ -81,10 +81,10 @@ done with either NPM or via Github.
 
 <details>
 	<summary>Download using NPM</summary>
-	<p><b>OPTION 1:</b> Familiar with Node.js and the <code>package.json</code> file?<br />Great. Install the component with this command:</p>
+	<p><b><code>OPTION</code> 1:</b> Familiar with Node.js and the <code>package.json</code> file?<br />Great. Install the component with this command:</p>
 	<pre lang=bash>
 npm install rwt-dockable-panels<br />	</pre>
-	<p><b>OPTION 2:</b> No prior experience using NPM?<br />Just follow these general steps:</p>
+	<p><b><code>OPTION</code> 2:</b> No prior experience using NPM?<br />Just follow these general steps:</p>
 	<ul>
 		<li>Install <a href='https://nodejs.org'>Node.js/NPM</a> on your development computer.</li>
 		<li>Create a <code>package.json</code> file in the root of your web project using the command:</li>
@@ -137,11 +137,13 @@ it:
 
          * `closed` The toolbar menu should initially be collapsed.
          * `open` [default] The toolbar menu should initially be expanded.
+      * Optionally, apply a `shortcut` attribute with a value like `'F1'`, `'F2'`, `'F3'`, to
+         allow the toolbar to be opened and closed using the keyboard.
 
 Example:
 
 ```html
-<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right state=open role=contentinfo></rwt-dockable-panels>
+<rwt-dockable-panels id=toolbarId sourceref='/panels.json' corner=top-right state=open shortcut='F1' role=contentinfo></rwt-dockable-panels>
 ```
 
 ### Panel configuration
@@ -160,7 +162,7 @@ The JSON object should contain an object with two properties:
       * `titlebar` the plain text or HTML to use for the main menu.
    2. `panels` an array of panel objects for configuring the panels, having:
 
-      * `options` an object to configure each panel's basic properties;
+      * `options` an object to configure each panel's basic properties:
 
          * `id` the HTML identifier for the panel
          * `titlebar` the text title for the panel
@@ -176,41 +178,41 @@ These are the possible lineTypes and their configuration properties:
 
    1. `"input"`
 
-      * `labelText` the text to place before the INPUT element
-      * `id` the identifier for the INPUT element
-      * `textAfter` any text to place after the INPUT element, optional
-      * `tooltip` the fly-over popup title for the INPUT element, optional
+      * `labelText` the text to place before the `INPUT` element
+      * `id` the identifier for the `INPUT` element
+      * `textAfter` any text to place after the `INPUT` element, optional
+      * `tooltip` the fly-over popup title for the `INPUT` element, optional
    2. `"button"`
 
-      * `buttonText` the text to place on the BUTTON element
-      * `id` the identifier for the BUTTON element
-      * `tooltip` the fly-over popup title for the BUTTON element, optional
+      * `buttonText` the text to place on the `BUTTON` element
+      * `id` the identifier for the `BUTTON` element
+      * `tooltip` the fly-over popup title for the `BUTTON` element, optional
    3. `"multi-button"`
 
       * `buttons` an array of objects to define each button, having:
 
-         * `buttonText` the text to place on the BUTTON element
-         * `id` the identifier for the BUTTON element
-         * `tooltip` the fly-over popup title for the BUTTON element, optional
+         * `buttonText` the text to place on the `BUTTON` element
+         * `id` the identifier for the `BUTTON` element
+         * `tooltip` the fly-over popup title for the `BUTTON` element, optional
    4. `"dropdown"`
 
-      * `labelText` the text to place before the SELECT element
-      * `id` the identifier for the SELECT element
-      * `tooltip` the fly-over popup title for the SELECT element, optional
-      * `selections` an array of OPTIONS, specified as objects, each having:
+      * `labelText` the text to place before the `SELECT` element
+      * `id` the identifier for the `SELECT` element
+      * `tooltip` the fly-over popup title for the `SELECT` element, optional
+      * `selections` an array of `OPTION`S, specified as objects, each having:
 
-         * `v` the OPTION value
-         * `t` the OPTION text
+         * `v` the `OPTION` value
+         * `t` the `OPTION` text
    5. `"slider+input"`
 
-      * `id` is the identifier to be assigned to the text <INPUT> being created (the range
+      * `id` is the identifier to be assigned to the text `INPUT` being created (the range
          slider will append "-slider" to this id)
       * `curve` is the distribution of slider values: "callback", "linear" or "log";
          defaults to linear if not defined
-      * `fromSlider` is a callback function that synchronizes <INPUT> value when the
-         current slider position changes
+      * `fromSlider` is a callback function that synchronizes `INPUT` value when the current
+         slider position changes
       * `toSlider` is a callback function that synchronizes the current slider position
-         when the <INPUT> value changes
+         when the `INPUT` value changes
       * `fromUser` is a callback function to convert user text to internal value
       * `toUser` is a callback function to convert internal value to user text
       * `numDecimals` is the number of decimal points kept in the internal value (defaults
@@ -222,20 +224,19 @@ These are the possible lineTypes and their configuration properties:
       * `minPosition` is the minimum slider position; defaults to 0 if not specified
       * `maxPosition` is the maximum slider position; defaults to 100 if not specified
       * `stepPosition` is the accuracy of the slider; defaults to 1 if not specified
-      * `labelText` is the text to be displayed in the <LABEL> before the two <INPUT>
-         elements
+      * `labelText` is the text to be displayed in the `LABEL` before the two `INPUT` elements
       * `tooltip` is the text to display on hover, optional
       * `widthInPx` is a string value specifying the width of the input field, with a
          trailing 'px', optional
-      * `textAfter` is the optional short text to display after the INPUT, optional
+      * `textAfter` is the optional short text to display after the `INPUT`, optional
    6. `"generic"`
 
-      * `id` the identifier for the DIV element
-      * `heightInPx` the height of the DIV element, specified with "px"
+      * `id` the identifier for the `DIV` element
+      * `heightInPx` the height of the `DIV` element, specified with "px"
       * `overflowY` Whether to show the scrollbar, either "scroll" or "hidden"
    7. `"table"`
 
-      * `id` is the identifier to be assigned to the <TABLE> being created
+      * `id` is the identifier to be assigned to the `TABLE` being created
       * `innerHTML` is the HTML to start with
       * `minHeightInPx` is a number of pixels, expressed as a string ending in 'px', like
          '156px'
@@ -275,10 +276,10 @@ with the same properties as just described. The methods are:
 		<span>The appendInputLine function creates a line with a label and an input. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'input'</code></li>
-			<li><code>labelText</code> the text to place before the INPUT element</li>
-			<li><code>id</code> the identifier for the INPUT element</li>
-			<li><code>textAfter</code> any text to place after the INPUT element, optional</li>
-			<li><code>tooltip</code> the fly-over popup title for the INPUT element, optional</li>
+			<li><code>labelText</code> the text to place before the <code>INPUT</code> element</li>
+			<li><code>id</code> the identifier for the <code>INPUT</code> element</li>
+			<li><code>textAfter</code> any text to place after the <code>INPUT</code> element, optional</li>
+			<li><code>tooltip</code> the fly-over popup title for the <code>INPUT</code> element, optional</li>
 		</ul>
 	</dd>
 	<dt>appendSingleButton (elPanel, options)</dt>
@@ -286,9 +287,9 @@ with the same properties as just described. The methods are:
 		<span>creates an internal button for doing something user-defined. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'button'</code></li>
-			<li><code>buttonText</code> the text to place on the BUTTON element</li>
-			<li><code>id</code> the identifier for the BUTTON element</li>
-			<li><code>tooltip</code> the fly-over popup title for the BUTTON element, optional</li>
+			<li><code>buttonText</code> the text to place on the <code>BUTTON</code> element</li>
+			<li><code>id</code> the identifier for the <code>BUTTON</code> element</li>
+			<li><code>tooltip</code> the fly-over popup title for the <code>BUTTON</code> element, optional</li>
 		</ul>
 	</dd>
 	<dt>appendMultiButtons (elPanel, options)</dt>
@@ -297,9 +298,9 @@ with the same properties as just described. The methods are:
 		<span><code>buttons</code> is an array of objects, each having:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'multi-button'</code></li>
-			<li><code>buttonText</code> the text to place on the BUTTON element</li>
-			<li><code>id</code> the identifier for the BUTTON element</li>
-			<li><code>tooltip</code> the fly-over popup title for the BUTTON element, optional</li>
+			<li><code>buttonText</code> the text to place on the <code>BUTTON</code> element</li>
+			<li><code>id</code> the identifier for the <code>BUTTON</code> element</li>
+			<li><code>tooltip</code> the fly-over popup title for the <code>BUTTON</code> element, optional</li>
 		</ul>
 	</dd>
 	<dt>appendDropdown (elPanel, options)</dt>
@@ -307,25 +308,25 @@ with the same properties as just described. The methods are:
 		<span>creates a line with a label and a select element. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'dropdown'</code></li>
-			<li><code>labelText</code> the text to place before the SELECT element</li>
-			<li><code>id</code> the identifier for the SELECT element</li>
-			<li><code>tooltip</code> the fly-over popup title for the SELECT element, optional</li>
-			<li><code>selections</code> an array of OPTIONS, specified as objects, each having:</li>
+			<li><code>labelText</code> the text to place before the <code>SELECT</code> element</li>
+			<li><code>id</code> the identifier for the <code>SELECT</code> element</li>
+			<li><code>tooltip</code> the fly-over popup title for the <code>SELECT</code> element, optional</li>
+			<li><code>selections</code> an array of <code>OPTION</code>S, specified as objects, each having:</li>
 			<ul>
-				<li><code>v</code> the OPTION value</li>
-				<li><code>t</code> the OPTION text</li>
+				<li><code>v</code> the <code>OPTION</code> value</li>
+				<li><code>t</code> the <code>OPTION</code> text</li>
 			</ul>
 		</ul>
 	</dd>
 	<dt>appendSliderWithInput (elPanel, options)</dt>
 	<dd>
-		<span>creates a line with a label and two INPUTs: a slider/input combo. The possible <code>options</code> are:</span>
+		<span>creates a line with a label and two <code>INPUT</code>s: a slider/input combo. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'slider+input'</code></li>
-			<li><code>id</code> is the identifier to be assigned to the text &lt;INPUT&gt; being created (the range slider will append "-slider" to this id)</li>
+			<li><code>id</code> is the identifier to be assigned to the text <code>INPUT</code> being created (the range slider will append "-slider" to this id)</li>
 			<li><code>curve</code> is the distribution of slider values: "callback", "linear" or "log"; defaults to linear if not defined</li>
-			<li><code>fromSlider</code> is a callback function that synchronizes &lt;INPUT&gt; value when the current slider position changes</li>
-			<li><code>toSlider</code> is a callback function that synchronizes the current slider position when the &lt;INPUT&gt; value changes</li>
+			<li><code>fromSlider</code> is a callback function that synchronizes <code>INPUT</code> value when the current slider position changes</li>
+			<li><code>toSlider</code> is a callback function that synchronizes the current slider position when the <code>INPUT</code> value changes</li>
 			<li><code>fromUser</code> is a callback function to convert user text to internal value</li>
 			<li><code>toUser</code> is a callback function to convert internal value to user text</li>
 			<li><code>numDecimals</code> is the number of decimal points kept in the internal value (defaults to 2).</li>
@@ -334,10 +335,10 @@ with the same properties as just described. The methods are:
 			<li><code>minPosition</code> is the minimum slider position; defaults to 0 if not specified</li>
 			<li><code>maxPosition</code> is the maximum slider position; defaults to 100 if not specified</li>
 			<li><code>stepPosition</code> is the accuracy of the slider; defaults to 1 if not specified</li>
-			<li><code>labelText</code> is the text to be displayed in the &lt;LABEL&gt; before the two &lt;INPUT&gt; elements</li>
+			<li><code>labelText</code> is the text to be displayed in the <code>LABEL</code> before the two <code>INPUT</code> elements</li>
 			<li><code>tooltip</code> is the text to display on hover, optional</li>
 			<li><code>widthInPx</code> is a string value specifying the width of the input field, with a trailing 'px', optional</li>
-			<li><code>textAfter</code> is the optional short text to display after the INPUT, optional</li>
+			<li><code>textAfter</code> is the optional short text to display after the <code>INPUT</code>, optional</li>
 		</ul>
 	</dd>
 	<dt>appendGenericArea (elPanel, options)</dt>
@@ -345,8 +346,8 @@ with the same properties as just described. The methods are:
 		<span>creates a &lt;div&gt; suitable for use with dynamic HTML. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'generic'</code></li>
-			<li><code>id</code> the identifier for the DIV element</li>
-			<li><code>heightInPx</code> the height of the DIV element, specified with "px"</li>
+			<li><code>id</code> the identifier for the <code>DIV</code> element</li>
+			<li><code>heightInPx</code> the height of the <code>DIV</code> element, specified with "px"</li>
 			<li><code>overflowY</code> Whether to show the scrollbar, either "scroll" or "hidden"</li>
 		</ul>
 	</dd>
@@ -355,7 +356,7 @@ with the same properties as just described. The methods are:
 		<span>creates a &lt;table&gt; suitable for use with dynamic HTML. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'table'</code></li>
-			<li><code>id</code> is the identifier to be assigned to the &lt;TABLE&gt; being created</li>
+			<li><code>id</code> is the identifier to be assigned to the <code>TABLE</code> being created</li>
 			<li><code>innerHTML</code> is the HTML to start with</li>
 			<li><code>minHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
 			<li><code>maxHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>

@@ -23,9 +23,10 @@ Object.seal(Static);
 export default class RwtDockablePanels extends HTMLElement {
     constructor() {
         super(), this.instance = Static.elementInstance++, this.isComponentLoaded = !1, 
-        this.collapseSender = `${Static.componentName} ${this.instance}`, this.corner = null, 
-        this.nextZIndex = 2, this.nextFloatLeft = 0, this.toolbar = null, this.toolbarNav = null, 
-        this.toolbarTitlebar = null, this.toolbarExpandButton = null, Object.seal(this);
+        this.collapseSender = `${Static.componentName} ${this.instance}`, this.shortcutKey = null, 
+        this.corner = null, this.nextZIndex = 2, this.nextFloatLeft = 0, this.toolbar = null, 
+        this.toolbarNav = null, this.toolbarTitlebar = null, this.toolbarExpandButton = null, 
+        Object.seal(this);
     }
     async connectedCallback() {
         if (this.isConnected) try {
@@ -34,9 +35,9 @@ export default class RwtDockablePanels extends HTMLElement {
             this.attachShadow({
                 mode: 'open'
             }), this.shadowRoot.appendChild(e), this.shadowRoot.appendChild(t), this.style.touchAction = 'none', 
-            this.style.userSelect = 'none', this.identifyChildren(), this.determineCorner(), 
-            await this.getConfiguredPanels(), this.determineInitialState(), this.registerEventListeners(), 
-            this.sendComponentLoaded(), this.validate();
+            this.style.userSelect = 'none', this.identifyChildren(), this.initializeShortcutKey(), 
+            this.determineCorner(), await this.getConfiguredPanels(), this.determineInitialState(), 
+            this.registerEventListeners(), this.sendComponentLoaded(), this.validate();
         } catch (e) {
             console.log(e.message);
         }
@@ -83,6 +84,9 @@ export default class RwtDockablePanels extends HTMLElement {
         this.toolbar.isExpanded = !0, this.toolbarNav = this.shadowRoot.getElementById('toolbar-nav'), 
         this.toolbarTitlebar = this.shadowRoot.getElementById('toolbar-titlebar'), this.toolbarExpandButton = this.shadowRoot.getElementById('toolbar-expand-button');
     }
+    initializeShortcutKey() {
+        this.hasAttribute('shortcut') && (this.shortcutKey = this.getAttribute('shortcut'));
+    }
     determineCorner() {
         if (this.corner = 'bottom-left', this.hasAttribute('corner')) {
             var e = this.getAttribute('corner');
@@ -117,7 +121,7 @@ export default class RwtDockablePanels extends HTMLElement {
     registerEventListeners() {
         this.shadowRoot.getElementById('toolbar-titlebar').addEventListener('pointerdown', this.onPointerdownToolbar.bind(this)), 
         this.shadowRoot.getElementById('toolbar-expand-button').addEventListener('click', this.onClickExpandButton.bind(this)), 
-        document.addEventListener('collapse-popup', this.onCollapsePopup.bind(this));
+        document.addEventListener('keydown', this.onKeydownDocument.bind(this)), document.addEventListener('collapse-popup', this.onCollapsePopup.bind(this));
     }
     sendComponentLoaded() {
         this.isComponentLoaded = !0, this.dispatchEvent(new Event('component-loaded', {
@@ -209,23 +213,23 @@ export default class RwtDockablePanels extends HTMLElement {
         isNaN(r) && (r = 100);
         var l = parseFloat(t.stepPosition);
         isNaN(l) && (l = 1);
-        var s = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', c = t.curve || 'linear', p = null;
-        p = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
-        var h = null;
-        h = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
-        var m = null;
-        m = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
+        var s = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', c = t.curve || 'linear', h = null;
+        h = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
+        var p = null;
+        p = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
         var u = null;
-        u = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
+        u = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
+        var m = null;
+        m = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
         this.createLineWrapper(e).innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
         this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${r}' step='${l}'></input>`;
         var b = this.shadowRoot.getElementById(`${t.id}`), f = this.shadowRoot.getElementById(`${t.id}-slider`);
         b.addEventListener('change', (e => {
-            var t = b.value, n = u(t), o = p(n);
-            t = m(n);
+            var t = b.value, n = m(t), o = h(n);
+            t = u(n);
             b.value = t, f.value = o;
         })), f.addEventListener('input', (e => {
-            var t = parseFloat(f.value), n = h(t), o = m(n);
+            var t = parseFloat(f.value), n = p(t), o = u(n);
             b.value = o;
         }));
     }
@@ -368,19 +372,10 @@ export default class RwtDockablePanels extends HTMLElement {
             (e.isTopmostMenu && ('chef-list' == a.className || 'chef-menuitem' == a.className) || !e.isTopmostMenu && 'chef-line' == a.className) && (a.style.display = 'expand' == n ? 'block' : 'none');
         }
         1 == e.isTopmostMenu ? 'expand' == n ? (this.toolbarTitlebar.style.display = 'block', 
-        e.style.width = 'var(--width)', t.innerHTML = Static.TOPMOST_OPEN, t.title = 'Close', 
+        e.style.width = 'var(--width)', t.innerHTML = Static.TOPMOST_OPEN, t.title = null == this.shortcutKey ? 'Close' : `Close (${this.shortcutKey})`, 
         this.collapseOtherPopups()) : (this.toolbarTitlebar.style.display = 'none', e.style.width = '24px', 
-        t.innerHTML = Static.TOPMOST_CLOSED, t.title = 'Open') : 'expand' == n ? (t.innerHTML = Static.COLLAPSE, 
+        t.innerHTML = Static.TOPMOST_CLOSED, t.title = null == this.shortcutKey ? 'Open' : `Open (${this.shortcutKey})`) : 'expand' == n ? (t.innerHTML = Static.COLLAPSE, 
         t.title = 'Show less') : (t.innerHTML = Static.EXPAND, t.title = 'Show more'), e.isExpanded = 'expand' == n;
-    }
-    collapseOtherPopups() {
-        var e = new CustomEvent('collapse-popup', {
-            detail: this.collapseSender
-        });
-        document.dispatchEvent(e);
-    }
-    onCollapsePopup(e) {
-        e.detail != this.collapseSender && this.closeToolbar();
     }
     detachPanel(e) {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
@@ -450,6 +445,48 @@ export default class RwtDockablePanels extends HTMLElement {
             t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT, 
             t.title = 'Detach menu', e.isDocked = !0, this.collapsePanel(e.id);
         }
+    }
+    collapseOtherPopups() {
+        var e = new CustomEvent('collapse-popup', {
+            detail: this.collapseSender
+        });
+        document.dispatchEvent(e);
+    }
+    onCollapsePopup(e) {
+        e.detail != this.collapseSender && this.closeToolbar();
+    }
+    onKeydownDocument(e) {
+        'Escape' == e.key && (this.escapeKeyHandler(), e.stopPropagation()), e.key == this.shortcutKey && null != this.shortcutKey && (this.toggleToolbar(), 
+        this.escapeKeyHandler(), e.stopPropagation(), e.preventDefault());
+    }
+    escapeKeyHandler() {
+        var e = this.collapseFirstDetachedOpenPanel();
+        e || (e = this.dockFirstDetachedPanel()), e || (e = this.collapseFirstAttachedOpenPanel()), 
+        e || this.closeToolbar();
+    }
+    collapseFirstDetachedOpenPanel() {
+        var e = this.shadowRoot.querySelectorAll('menu.chef-toolbar ~ menu');
+        for (let t = 0; t < e.length; t++) {
+            let n = e[t].querySelector('menu.chef-list');
+            if (null != n && 1 == n.isExpanded) return this.collapsePanel(n.id), !0;
+        }
+        return !1;
+    }
+    dockFirstDetachedPanel() {
+        var e = this.shadowRoot.querySelectorAll('menu.chef-toolbar ~ menu');
+        for (let t = 0; t < e.length; t++) {
+            let n = e[t].querySelector('menu.chef-list');
+            if (null != n && 0 == n.isExpanded) return this.attachPanel(n.id), !0;
+        }
+        return !1;
+    }
+    collapseFirstAttachedOpenPanel() {
+        var e = this.toolbar.querySelectorAll('menu');
+        for (let t = 0; t < e.length; t++) {
+            let n = e[t];
+            if (1 == n.isExpanded) return this.collapsePanel(n.id), !0;
+        }
+        return !1;
     }
     onPointerdownToolbar(e) {
         if ('chef-expand-button' != e.target.className && 'chef-float-button' != e.target.className) {
