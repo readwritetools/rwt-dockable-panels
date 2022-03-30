@@ -457,7 +457,7 @@ export default class RwtDockablePanels extends HTMLElement {
     }
     onKeydownDocument(e) {
         'Escape' == e.key && (this.escapeKeyHandler(), e.stopPropagation()), e.key == this.shortcutKey && null != this.shortcutKey && (this.toggleToolbar(), 
-        this.escapeKeyHandler(), e.stopPropagation(), e.preventDefault());
+        e.stopPropagation(), e.preventDefault());
     }
     escapeKeyHandler() {
         var e = this.collapseFirstDetachedOpenPanel();
