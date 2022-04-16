@@ -32,15 +32,16 @@
 .chef-slider{margin:0 20px;width:calc(100% - 40px)}
 .chef-after{margin-left:10px;overflow:hidden}
 .chef-select{margin-left:120px;padding:2px;width:120px}
-.chef-command,.chef-expand-button,.chef-float-button{font-family:Arial;font-weight:700;font-size:14px;text-align:center;letter-spacing:1px}
+.chef-command,.chef-expand-button,.chef-float-button,.chef-kbd{font-family:Arial,sans-serif;font-weight:700;font-size:14px;text-align:center;letter-spacing:1px}
 .chef-command:focus,.chef-expand-button:focus,.chef-float-button:focus,.chef-h1:focus,.chef-h2:focus,.chef-menuitem:focus{outline:1px dotted var(--disabled-white);outline-offset:-3px}
 .chef-expand-button,.chef-float-button{float:right}
 .chef-expand-button,.chef-float-button{width:24px;border-left:1px solid var(--border-color)}
 .chef-expand-button,.chef-float-button{color:var(--color);background-color:var(--background-color2)}
 .chef-command{display:block;width:90%;margin:0 auto}
 .chef-command{color:var(--color);background-color:var(--background-color2);border:1px solid var(--border-color);border-radius:3px;cursor:pointer}
+.chef-kbd{font-size:12px;padding:2px 4px;color:var(--color);background-color:var(--background-color2);border:1px solid var(--border-color);border-radius:3px;cursor:pointer}
 .chef-one-third-command{display:inline-block!important;width:73px!important;margin:0 5px!important}
-.chef-command:hover,.chef-expand-button:hover,.chef-float-button:hover{background-color:var(--background-color1)}
+.chef-command:hover,.chef-expand-button:hover,.chef-float-button:hover,.chef-kbd:hover{background-color:var(--background-color1)}
 .chef-generic{font-family:var(--font-family);font-weight:500;font-size:11px;text-align:left;letter-spacing:1px}
 .chef-generic{color:var(--color);padding:13px 10px}
 .chef-table tr{border-bottom:var(--border-color) 1px solid}
