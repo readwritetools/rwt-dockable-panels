@@ -153,39 +153,41 @@ export default class RwtDockablePanels extends HTMLElement {
         var l = this.createTitlebarButton(a, `${e}-titlebar`, 'chef-h2', t.titlebar, t.tooltip, t.tabIndex + 0);
         l.isTopmostMenu = !1, 0 != t.expandable && 0 != t.dockable || (l.style.width = 'var(--width-h1)'), 
         0 == t.expandable && 0 == t.dockable && (l.style.width = 'var(--width)');
+        var s = document.createElement('div');
+        s.className = 'chef-flex-div', o.appendChild(s);
         for (let e = 0; e < n.length; e++) {
-            var s = n[e], d = s.lineType;
-            switch (d) {
+            var d = n[e], c = d.lineType;
+            switch (c) {
               case 'input':
-                this.appendInputLine(o, s);
+                this.appendInputLine(s, d);
                 break;
 
               case 'button':
-                this.appendSingleButton(o, s);
+                this.appendSingleButton(s, d);
                 break;
 
               case 'multi-button':
-                this.appendMultiButtons(o, s);
+                this.appendMultiButtons(s, d);
                 break;
 
               case 'dropdown':
-                this.appendDropdown(o, s);
+                this.appendDropdown(s, d);
                 break;
 
               case 'slider+input':
-                this.appendSliderWithInput(o, s);
+                this.appendSliderWithInput(s, d);
                 break;
 
               case 'generic':
-                this.appendGenericArea(o, s);
+                this.appendGenericArea(s, d);
                 break;
 
               case 'table':
-                this.appendTableArea(o, s);
+                this.appendTableArea(s, d);
                 break;
 
               default:
-                console.log(`appendPanel line ${e} specifies an unrecognized lineType "${d}"`);
+                console.log(`appendPanel line ${e} specifies an unrecognized lineType "${c}"`);
             }
         }
         return o;
@@ -369,7 +371,8 @@ export default class RwtDockablePanels extends HTMLElement {
         e.isTopmostMenu ? e.style.display = 'block' : e.isDocked ? this.toolbar.isExpanded ? e.style.display = 'block' : e.style.display = 'none' : e.style.display = 'block';
         for (var o = 0; o < e.children.length; o++) {
             var a = e.children[o];
-            (e.isTopmostMenu && ('chef-list' == a.className || 'chef-menuitem' == a.className) || !e.isTopmostMenu && 'chef-line' == a.className) && (a.style.display = 'expand' == n ? 'block' : 'none');
+            !e.isTopmostMenu || 'chef-list' != a.className && 'chef-menuitem' != a.className || (a.style.display = 'expand' == n ? 'block' : 'none'), 
+            e.isTopmostMenu || 'chef-flex-div' != a.className || (a.style.display = 'expand' == n ? 'flex' : 'none');
         }
         1 == e.isTopmostMenu ? 'expand' == n ? (this.toolbarTitlebar.style.display = 'block', 
         e.style.width = 'var(--width)', t.innerHTML = Static.TOPMOST_OPEN, t.title = null == this.shortcutKey ? 'Close' : `Close (${this.shortcutKey})`, 
@@ -385,13 +388,15 @@ export default class RwtDockablePanels extends HTMLElement {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
         t && n && this.floatDockHelper(t, n, 'dock');
     }
-    presetDetachablePanelPosition(e, t, n, o, a) {
-        var i = this.getMenuElement(e);
-        null != i && 'MENU' == i.tagName && (i.savePosition = {
+    presetDetachablePanelPosition(e, t, n, o, a, i, r) {
+        var l = this.getMenuElement(e);
+        null != l && 'MENU' == l.tagName && (i = i ?? '', r = r ?? '', l.savePosition = {
             top: t,
             left: n,
             bottom: o,
-            right: a
+            right: a,
+            width: i,
+            height: r
         });
     }
     onClickFloatButton(e) {
@@ -433,13 +438,15 @@ export default class RwtDockablePanels extends HTMLElement {
                 s = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('bottom')) + this.toolbar.offsetHeight - e.offsetTop - e.offsetHeight;
                 d.style.bottom = s + 'px';
             }
-            this.shadowRoot.appendChild(d), d.appendChild(e), t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT, 
+            this.shadowRoot.appendChild(d), i && ('' != a.width && (d.style.width = a.width), 
+            '' != a.height && (d.style.height = a.height)), d.appendChild(e), t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT, 
             t.title = 'Dock menu', e.isDocked = !1, this.expandPanel(e.id), e.style.zIndex = this.nextZIndex++;
         } else {
             if (1 == e.isDocked) return;
             var d = e.parentNode;
             e.savePosition = {}, e.savePosition.left = d.style.left, e.savePosition.right = d.style.right, 
-            e.savePosition.top = d.style.top, e.savePosition.bottom = d.style.bottom, e.saveParentNode.insertBefore(e, e.saveReferenceNode), 
+            e.savePosition.top = d.style.top, e.savePosition.bottom = d.style.bottom, e.savePosition.width = d.style.width, 
+            e.savePosition.height = d.style.height, e.saveParentNode.insertBefore(e, e.saveReferenceNode), 
             e.saveParentNode.removeChild(e.saveReferenceNode), d.parentNode.removeChild(d), 
             e.removeEventListener('pointerdown', e.boundPointerdownToolbar), e.saveParentNode.isExpanded || (e.style.display = 'none'), 
             t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT, 

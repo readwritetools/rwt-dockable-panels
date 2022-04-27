@@ -1,5 +1,5 @@
 /* Copyright (c) 2021 Read Write Tools. Legal use subject to the Dockable Panels DOM Component Software License Agreement. */
-:host{--pure-black:#000;--nav-black:#111;--light-black:#171717;--medium-black:#222;--black:#333;--dark-gray:#555;--gray:#777;--light-gray:#999;--disabled-white:#aaa;--white:#ccc;--pure-white:#fff;--js-blue:#76afe8;--title-blue:#42affa;--yellow:#ffffa4;--red:#ff3d3d;--surfie-green:#107187;--coral-atoll:#0E6073;--tiber:#093640;--eden:#0D4A56;--top:30px;--bottom:30px;--left:30px;--right:30px;--width:250px;--font-family:Arial,sans-serif;--z-index:1;--color:var(--pure-white);--border-color:var(--pure-white);--background-color1:var(--surfie-green);--background-color2:var(--coral-atoll);--background-color3:var(--tiber);--background-color4:var(--eden);--width-expand-float:24px;--width-h1:calc(var(--width) - var(--width-expand-float));--width-h2:calc(var(--width) - 2*var(--width-expand-float))}
+:host{--pure-black:#000;--nav-black:#111;--light-black:#171717;--medium-black:#222;--black:#333;--dark-gray:#555;--gray:#777;--light-gray:#999;--disabled-white:#aaa;--white:#ccc;--pure-white:#fff;--js-blue:#76afe8;--title-blue:#42affa;--yellow:#ffffa4;--red:#ff3d3d;--surfie-green:#107187;--coral-atoll:#0E6073;--tiber:#093640;--eden:#0D4A56;--top:30px;--bottom:30px;--left:30px;--right:30px;--width:250px;--font-family:Arial,sans-serif;--z-index:1;--color:var(--pure-white);--border-color:var(--pure-white);--background-color1:var(--surfie-green);--background-color2:var(--coral-atoll);--background-color3:var(--tiber);--background-color4:var(--eden);--width-expand-float:24px;--width-h1:calc(100% - var(--width-expand-float));--width-h2:calc(100% - 2*var(--width-expand-float))}
 #toolbar.bottom-left{bottom:var(--bottom);left:var(--left)}
 #toolbar.bottom-right{bottom:var(--bottom);right:var(--right)}
 #toolbar.top-left{top:var(--top);left:var(--left)}
@@ -7,6 +7,7 @@
 .chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-line,.chef-list,.chef-menuitem,.chef-nav,.chef-select,.chef-toolbar{margin:0;padding:0}
 .chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-list,.chef-menuitem,.chef-nav,.chef-toolbar{line-height:24px}
 .chef-after,.chef-command,.chef-input,.chef-label,.chef-line,.chef-select{line-height:26px;height:20px}
+.chef-list{height:100%}
 .chef-select{line-height:26px;height:26px}
 .chef-command{line-height:18px;height:22px}
 .chef-generic{line-height:14px}
@@ -22,10 +23,10 @@
 .chef-h1,.chef-h2,.chef-h3,.chef-menuitem{text-indent:10px}
 .chef-h1:hover,.chef-h2:hover,.chef-menuitem:hover{background-color:var(--background-color1)}
 .chef-nav+.chef-line{border-top:dotted 1px var(--pure-black)}
-.chef-line{display:none}
+.chef-flex-div{display:none;flex-direction:column;height:100%}
 .chef-line{margin-right:10px;padding:10px 0 20px 0}
 .chef-line{font-family:var(--font-family);font-weight:500;font-size:11px}
-.chef-line{color:var(--color);background-color:var(--background-color4)}
+.chef-line,.chef-list{color:var(--color);background-color:var(--background-color4)}
 .chef-label{position:absolute;text-align:right;width:110px}
 .chef-input{margin-left:120px;padding:2px;width:50px}
 .chef-input[disabled]{background-color:var(--disabled-white);color:var(--color)}
