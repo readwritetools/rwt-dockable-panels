@@ -8,6 +8,7 @@ const Static = {
     htmlText: null,
     cssText: null,
     nextId: 1,
+    nextTabIndex: 100,
     TOPMOST_OPEN: '☰',
     TOPMOST_CLOSED: '☰',
     EXPAND: '+',
@@ -26,7 +27,7 @@ export default class RwtDockablePanels extends HTMLElement {
         this.collapseSender = `${Static.componentName} ${this.instance}`, this.shortcutKey = null, 
         this.corner = null, this.nextZIndex = 2, this.nextFloatLeft = 0, this.toolbar = null, 
         this.toolbarNav = null, this.toolbarTitlebar = null, this.toolbarExpandButton = null, 
-        Object.seal(this);
+        this.toolbarHolder = null, Object.seal(this);
     }
     async connectedCallback() {
         if (this.isConnected) try {
@@ -82,7 +83,8 @@ export default class RwtDockablePanels extends HTMLElement {
     identifyChildren() {
         this.toolbar = this.shadowRoot.getElementById('toolbar'), this.toolbar.isTopmostMenu = !0, 
         this.toolbar.isExpanded = !0, this.toolbarNav = this.shadowRoot.getElementById('toolbar-nav'), 
-        this.toolbarTitlebar = this.shadowRoot.getElementById('toolbar-titlebar'), this.toolbarExpandButton = this.shadowRoot.getElementById('toolbar-expand-button');
+        this.toolbarTitlebar = this.shadowRoot.getElementById('toolbar-titlebar'), this.toolbarExpandButton = this.shadowRoot.getElementById('toolbar-expand-button'), 
+        this.toolbarHolder = this.shadowRoot.getElementById('toolbar-holder');
     }
     initializeShortcutKey() {
         this.hasAttribute('shortcut') && (this.shortcutKey = this.getAttribute('shortcut'));
@@ -105,9 +107,7 @@ export default class RwtDockablePanels extends HTMLElement {
                 if (200 != t.status && 304 != t.status) return null;
                 var n = await t.json();
                 if (n.toolbar && n.toolbar.titlebar && this.setTitlebar(n.toolbar.titlebar), n.panels) for (let e = 0; e < n.panels.length; e++) {
-                    var o = n.panels[e].options;
-                    o.tabIndex = 103 + 3 * e;
-                    var a = n.panels[e].panelLines;
+                    var o = n.panels[e].options, a = n.panels[e].panelLines;
                     o && a && this.appendPanel(o.id, o, a);
                 }
             } catch (e) {
@@ -137,53 +137,58 @@ export default class RwtDockablePanels extends HTMLElement {
         this.shadowRoot.getElementById('toolbar-titlebar').innerHTML = e;
     }
     appendPanel(e, t, n) {
-        t.titlebar = t.titlebar || '', t.expandable = null == t.expandable || t.expandable, 
-        t.dockable = null == t.dockable || t.dockable, t.tabIndex = t.tabIndex || 100, t.tooltip = t.tooltip || '';
+        t.titlebar = t.titlebar ?? '', t.expandable = t.expandable ?? !0, t.dockable = t.dockable ?? !0, 
+        t.tooltip = t.tooltip ?? '', null == t.tabIndex && (t.tabIndex = Static.nextTabIndex, 
+        Static.nextTabIndex += 100);
         var o = document.createElement('menu');
-        o.id = e, o.className = 'chef-list', o.isTopmostMenu = !1, o.isExpanded = !1, o.isDocked = !0, 
-        this.toolbar.appendChild(o);
+        o.id = e, o.className = 'chef-panel', o.isTopmostMenu = !1, o.isExpanded = !1, o.isDocked = !0, 
+        o.tabIndex = t.tabIndex, this.toolbarHolder.appendChild(o);
         var a = document.createElement('nav');
         (a.id = `${e}-nav`, a.className = 'chef-nav', o.appendChild(a), t.expandable) && ((i = this.createTitlebarButton(a, `${e}-expand-button`, 'chef-expand-button', Static.EXPAND, 'Show more', t.tabIndex + 2)).isExpanded = !1, 
         i.addEventListener('click', this.onClickExpandButton.bind(this)));
         if (t.dockable) {
-            var i, r = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT;
-            (i = this.createTitlebarButton(a, `${e}-float-button`, 'chef-float-button', r, 'Detach menu', t.tabIndex + 1)).isDocked = !0, 
+            var i, s = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT;
+            (i = this.createTitlebarButton(a, `${e}-float-button`, 'chef-float-button', s, 'Detach menu', t.tabIndex + 1)).isDocked = !0, 
             i.addEventListener('click', this.onClickFloatButton.bind(this));
         }
-        var l = this.createTitlebarButton(a, `${e}-titlebar`, 'chef-h2', t.titlebar, t.tooltip, t.tabIndex + 0);
-        l.isTopmostMenu = !1, 0 != t.expandable && 0 != t.dockable || (l.style.width = 'var(--width-h1)'), 
-        0 == t.expandable && 0 == t.dockable && (l.style.width = 'var(--width)');
-        var s = document.createElement('div');
-        s.className = 'chef-flex-div', o.appendChild(s);
+        var r = this.createTitlebarButton(a, `${e}-titlebar`, 'chef-h2', t.titlebar, t.tooltip, t.tabIndex + 0);
+        r.isTopmostMenu = !1, 0 != t.expandable && 0 != t.dockable || (r.style.width = 'var(--width-h1)'), 
+        0 == t.expandable && 0 == t.dockable && (r.style.width = 'var(--width)');
+        var l = document.createElement('div');
+        l.className = 'chef-content', o.appendChild(l);
         for (let e = 0; e < n.length; e++) {
             var d = n[e], c = d.lineType;
             switch (c) {
               case 'input':
-                this.appendInputLine(s, d);
+                this.appendInputLine(l, d);
                 break;
 
               case 'button':
-                this.appendSingleButton(s, d);
+                this.appendSingleButton(l, d);
                 break;
 
               case 'multi-button':
-                this.appendMultiButtons(s, d);
+                this.appendMultiButtons(l, d);
                 break;
 
               case 'dropdown':
-                this.appendDropdown(s, d);
+                this.appendDropdown(l, d);
                 break;
 
               case 'slider+input':
-                this.appendSliderWithInput(s, d);
+                this.appendSliderWithInput(l, d);
                 break;
 
               case 'generic':
-                this.appendGenericArea(s, d);
+                this.appendGenericArea(l, d);
+                break;
+
+              case 'custom':
+                this.appendCustomArea(l, d);
                 break;
 
               case 'table':
-                this.appendTableArea(s, d);
+                this.appendTableArea(l, d);
                 break;
 
               default:
@@ -193,8 +198,11 @@ export default class RwtDockablePanels extends HTMLElement {
         return o;
     }
     appendInputLine(e, t) {
-        console.assert('input' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.labelText = t.labelText || '';
-        var n = this.createLineWrapper(e), o = document.createElement('label');
+        console.assert('input' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.labelText = t.labelText || '', 
+        t.cssText = t.cssText || '';
+        var n = this.createLineWrapper(e);
+        t.cssText && (n.style.cssText = t.cssText);
+        var o = document.createElement('label');
         o.id = `${t.id}-label`, o.htmlFor = t.id, o.className = 'chef-label', o.appendChild(document.createTextNode(t.labelText)), 
         n.appendChild(o);
         var a = document.createElement('input');
@@ -208,30 +216,31 @@ export default class RwtDockablePanels extends HTMLElement {
     }
     appendSliderWithInput(e, t) {
         console.assert('slider+input' == t.lineType), t.id = t.id || 'id' + Static.nextId++, 
-        t.labelText = t.labelText || '', t.textAfter = t.textAfter || '';
+        t.labelText = t.labelText || '', t.textAfter = t.textAfter || '', t.cssText = t.cssText || '';
         var n = null == t.tooltip ? '' : `title="${t.tooltip}"`, o = null == t.widthInPx ? '' : `style='width: ${t.widthInPx}'`, a = t.numDecimals || 2, i = parseFloat(t.minPosition);
         isNaN(i) && (i = 0);
-        var r = parseFloat(t.maxPosition);
-        isNaN(r) && (r = 100);
-        var l = parseFloat(t.stepPosition);
-        isNaN(l) && (l = 1);
-        var s = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', c = t.curve || 'linear', h = null;
-        h = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, r, s, d) : this.toSliderLinear;
+        var s = parseFloat(t.maxPosition);
+        isNaN(s) && (s = 100);
+        var r = parseFloat(t.stepPosition);
+        isNaN(r) && (r = 1);
+        var l = null != t.minValue ? parseFloat(t.minValue) : '', d = null != t.minValue ? parseFloat(t.maxValue) : '', c = t.curve || 'linear', h = null;
+        h = null != t.toSlider && 'Function' == t.toSlider.constructor.name ? t.toSlider : 'log' == c ? this.toSliderLogarithmic.bind(null, i, s, l, d) : this.toSliderLinear;
         var p = null;
-        p = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, r, s, d) : this.fromSliderLinear;
+        p = null != t.fromSlider && 'Function' == t.fromSlider.constructor.name ? t.fromSlider : 'log' == c ? this.fromSliderLogarithmic.bind(null, i, s, l, d) : this.fromSliderLinear;
         var u = null;
-        u = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, s, d);
+        u = null != t.toUser && 'Function' == t.toUser.constructor.name ? t.toUser : this.toUserFixedDecimal.bind(null, a, l, d);
         var m = null;
-        m = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, s, d), 
-        this.createLineWrapper(e).innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
-        this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${r}' step='${l}'></input>`;
-        var b = this.shadowRoot.getElementById(`${t.id}`), f = this.shadowRoot.getElementById(`${t.id}-slider`);
+        m = null != t.fromUser && 'Function' == t.fromUser.constructor.name ? t.fromUser : this.fromUserFixedDecimal.bind(null, a, l, d);
+        var f = this.createLineWrapper(e);
+        t.cssText && (f.style.cssText = t.cssText), f.innerHTML = `\n\t\t\t<label id='${t.id}-label' class='chef-label'>${t.labelText}</label>\n\t\t\t<input id='${t.id}'       class='chef-input' type='text' ${n} ${o}></input>\n\t\t\t<span  id='${t.id}-after' class='chef-after'>${t.textAfter}</span>`, 
+        this.createLineWrapper(e).innerHTML = `<input id='${t.id}-slider' class='chef-slider' type='range' ${n} min='${i}' max='${s}' step='${r}'></input>`;
+        var b = this.shadowRoot.getElementById(`${t.id}`), x = this.shadowRoot.getElementById(`${t.id}-slider`);
         b.addEventListener('change', (e => {
             var t = b.value, n = m(t), o = h(n);
             t = u(n);
-            b.value = t, f.value = o;
-        })), f.addEventListener('input', (e => {
-            var t = parseFloat(f.value), n = p(t), o = u(n);
+            b.value = t, x.value = o;
+        })), x.addEventListener('input', (e => {
+            var t = parseFloat(x.value), n = p(t), o = u(n);
             b.value = o;
         }));
     }
@@ -264,66 +273,88 @@ export default class RwtDockablePanels extends HTMLElement {
         return a;
     }
     appendSingleButton(e, t) {
-        console.assert('button' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.buttonText = t.buttonText || 'OK';
-        var n = this.createLineWrapper(e), o = document.createElement('button');
+        console.assert('button' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.buttonText = t.buttonText || 'OK', 
+        t.cssText = t.cssText || '';
+        var n = this.createLineWrapper(e);
+        t.cssText && (n.style.cssText = t.cssText);
+        var o = document.createElement('button');
         return o.type = 'button', o.id = t.id, o.className = 'chef-command', null != t.tooltip && (o.title = t.tooltip), 
         o.appendChild(document.createTextNode(t.buttonText)), n.appendChild(o), o;
     }
     appendMultiButtons(e, t) {
-        console.assert('multi-button' == t.lineType), console.assert(null != t.buttons);
-        for (var n = this.createLineWrapper(e), o = [], a = 0; a < t.buttons.length; a++) {
+        console.assert('multi-button' == t.lineType), console.assert(null != t.buttons), 
+        t.cssText = t.cssText || '';
+        var n = this.createLineWrapper(e);
+        t.cssText && (n.style.cssText = t.cssText);
+        for (var o = [], a = 0; a < t.buttons.length; a++) {
             var i = t.buttons[a];
             i.id = i.id || 'id' + Static.nextId++, i.buttonText = i.buttonText || 'OK';
-            var r = document.createElement('button');
-            r.type = 'button', r.id = i.id, r.className = 'chef-command chef-one-third-command', 
-            null != i.tooltip && (r.title = i.tooltip), r.appendChild(document.createTextNode(i.buttonText)), 
-            n.appendChild(r), o.push(r);
+            var s = document.createElement('button');
+            s.type = 'button', s.id = i.id, s.className = 'chef-command chef-one-third-command', 
+            null != i.tooltip && (s.title = i.tooltip), s.appendChild(document.createTextNode(i.buttonText)), 
+            n.appendChild(s), o.push(s);
         }
         return o;
     }
     appendDropdown(e, t) {
         console.assert('dropdown' == t.lineType), t.id = t.id || 'id' + Static.nextId++, 
-        t.labelText = t.labelText || '';
-        var n = this.createLineWrapper(e), o = document.createElement('label');
+        t.labelText = t.labelText || '', t.cssText = t.cssText || '';
+        var n = this.createLineWrapper(e);
+        t.cssText && (n.style.cssText = t.cssText);
+        var o = document.createElement('label');
         o.htmlFor = t.id, o.className = 'chef-label', o.appendChild(document.createTextNode(t.labelText)), 
         n.appendChild(o);
         var a = document.createElement('select');
         a.id = t.id, a.className = 'chef-select', null != t.tooltip && (a.title = t.tooltip), 
         n.appendChild(a);
         for (var i = 0; i < t.selections.length; i++) {
-            var r = document.createElement('option');
-            r.value = t.selections[i].v, r.appendChild(document.createTextNode(t.selections[i].t)), 
-            a.appendChild(r);
+            var s = document.createElement('option');
+            s.value = t.selections[i].v, s.appendChild(document.createTextNode(t.selections[i].t)), 
+            a.appendChild(s);
         }
         return a;
     }
     appendGenericArea(e, t) {
         console.assert('generic' == t.lineType), t.id = t.id || 'id' + Static.nextId++, 
-        t.innerHTML = t.innerHTML || '', t.heightInPx = t.heightInPx || '100px', t.overflowY = t.overflowY || 'hidden';
+        t.innerHTML = t.innerHTML || '', t.heightInPx = t.heightInPx || '100px', t.overflowX = t.overflowX || 'hidden', 
+        t.overflowY = t.overflowY || 'hidden', t.cssText = t.cssText || '';
         var n = this.createLineWrapper(e);
-        n.style.overflowY = t.overflowY, n.style.padding = '0', n.style.height = t.heightInPx;
+        t.cssText && (n.style.cssText = t.cssText), n.style.overflowX = t.overflowX, n.style.overflowY = t.overflowY, 
+        n.style.padding = '0', n.style.height = t.heightInPx;
         var o = document.createElement('div');
         return o.id = t.id, o.className = 'chef-generic', o.innerHTML = t.innerHTML, n.appendChild(o), 
         o;
     }
-    appendTableArea(e, t) {
-        console.assert('table' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.innerHTML = t.innerHTML || '';
+    appendCustomArea(e, t) {
+        console.assert('custom' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.innerHTML = t.innerHTML || '<div></div>', 
+        t.heightInPx = t.heightInPx || '100px', t.overflowX = t.overflowX || 'hidden', t.overflowY = t.overflowY || 'hidden', 
+        t.cssText = t.cssText || '';
         var n = this.createLineWrapper(e);
-        n.style.padding = '0', t.minHeightInPx && (n.style.minHeight = t.minHeightInPx), 
+        t.cssText && (n.style.cssText = t.cssText), n.style.overflowX = t.overflowX, n.style.overflowY = t.overflowY, 
+        n.style.padding = '0', n.style.height = t.heightInPx;
+        var o = document.createElement('div');
+        return o.id = t.id, o.className = 'chef-custom', o.innerHTML = t.innerHTML, n.appendChild(o), 
+        o;
+    }
+    appendTableArea(e, t) {
+        console.assert('table' == t.lineType), t.id = t.id || 'id' + Static.nextId++, t.innerHTML = t.innerHTML || '', 
+        t.overflowX = t.overflowX || 'auto', t.overflowY = t.overflowY || 'auto', t.cssText = t.cssText || '';
+        var n = this.createLineWrapper(e);
+        t.cssText && (n.style.cssText = t.cssText), n.style.padding = '0', t.minHeightInPx && (n.style.minHeight = t.minHeightInPx), 
         t.maxHeightInPx && (n.style.maxHeight = t.maxHeightInPx), t.heightInPx ? n.style.height = t.heightInPx : n.style.height = '100%', 
-        t.overflowY ? n.style.overflowY = t.overflowY : n.style.overflowY = 'auto';
+        n.style.overflowX = t.overflowX, n.style.overflowY = t.overflowY;
         var o = document.createElement('table');
         return o.id = t.id, o.className = 'chef-table', o.style.width = '100%', o.innerHTML = t.innerHTML, 
         n.appendChild(o), o;
     }
     createTitlebarButton(e, t, n, o, a, i) {
-        var r = document.createElement('button');
-        return r.type = 'button', r.id = t, r.className = n, r.tabIndex = i, r.title = a, 
-        r.appendChild(document.createTextNode(o)), e.appendChild(r), r;
+        var s = document.createElement('button');
+        return s.type = 'button', s.id = t, s.className = n, s.tabIndex = i, s.title = a, 
+        s.appendChild(document.createTextNode(o)), e.appendChild(s), s;
     }
     createLineWrapper(e) {
         var t = document.createElement('div');
-        return t.className = 'chef-line', e.appendChild(t), t;
+        return t.className = 'chef-section', e.appendChild(t), t;
     }
     getMenuElement(e) {
         return this.shadowRoot.getElementById(e);
@@ -368,17 +399,22 @@ export default class RwtDockablePanels extends HTMLElement {
         }
     }
     expandCollapseHelper(e, t, n) {
-        e.isTopmostMenu ? e.style.display = 'block' : e.isDocked ? this.toolbar.isExpanded ? e.style.display = 'block' : e.style.display = 'none' : e.style.display = 'block';
+        e.isTopmostMenu ? e.style.display = 'flex' : e.isDocked ? this.toolbar.isExpanded ? e.style.display = 'block' : e.style.display = 'none' : e.style.display = 'block';
         for (var o = 0; o < e.children.length; o++) {
             var a = e.children[o];
-            !e.isTopmostMenu || 'chef-list' != a.className && 'chef-menuitem' != a.className || (a.style.display = 'expand' == n ? 'block' : 'none'), 
-            e.isTopmostMenu || 'chef-flex-div' != a.className || (a.style.display = 'expand' == n ? 'flex' : 'none');
+            e.isTopmostMenu || 'chef-content' != a.className || (a.style.display = 'expand' == n ? 'flex' : 'none');
         }
-        1 == e.isTopmostMenu ? 'expand' == n ? (this.toolbarTitlebar.style.display = 'block', 
-        e.style.width = 'var(--width)', t.innerHTML = Static.TOPMOST_OPEN, t.title = null == this.shortcutKey ? 'Close' : `Close (${this.shortcutKey})`, 
-        this.collapseOtherPopups()) : (this.toolbarTitlebar.style.display = 'none', e.style.width = '24px', 
-        t.innerHTML = Static.TOPMOST_CLOSED, t.title = null == this.shortcutKey ? 'Open' : `Open (${this.shortcutKey})`) : 'expand' == n ? (t.innerHTML = Static.COLLAPSE, 
-        t.title = 'Show less') : (t.innerHTML = Static.EXPAND, t.title = 'Show more'), e.isExpanded = 'expand' == n;
+        if (1 == e.isTopmostMenu) {
+            'expand' == n ? (this.toolbarTitlebar.style.display = 'block', e.style.width = 'var(--width)', 
+            t.innerHTML = Static.TOPMOST_OPEN, t.title = null == this.shortcutKey ? 'Close' : `Close (${this.shortcutKey})`, 
+            this.collapseOtherPopups()) : (this.toolbarTitlebar.style.display = 'none', e.style.width = '24px', 
+            t.innerHTML = Static.TOPMOST_CLOSED, t.title = null == this.shortcutKey ? 'Open' : `Open (${this.shortcutKey})`);
+            for (o = 0; o < this.toolbarHolder.children.length; o++) {
+                'chef-content' == (a = this.toolbarHolder.children[o]).className ? a.style.display = 'expand' == n ? 'flex' : 'none' : a.style.display = 'expand' == n ? 'block' : 'none';
+            }
+        } else 'expand' == n ? (t.innerHTML = Static.COLLAPSE, t.title = 'Show less') : (t.innerHTML = Static.EXPAND, 
+        t.title = 'Show more');
+        e.isExpanded = 'expand' == n;
     }
     detachPanel(e) {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
@@ -388,15 +424,15 @@ export default class RwtDockablePanels extends HTMLElement {
         var t = this.getMenuElement(e), n = this.getFloatButton(e);
         t && n && this.floatDockHelper(t, n, 'dock');
     }
-    presetDetachablePanelPosition(e, t, n, o, a, i, r) {
-        var l = this.getMenuElement(e);
-        null != l && 'MENU' == l.tagName && (i = i ?? '', r = r ?? '', l.savePosition = {
+    presetDetachablePanelPosition(e, t, n, o, a, i, s) {
+        var r = this.getMenuElement(e);
+        null != r && 'MENU' == r.tagName && (i = i ?? '', s = s ?? '', r.savePosition = {
             top: t,
             left: n,
             bottom: o,
             right: a,
             width: i,
-            height: r
+            height: s
         });
     }
     onClickFloatButton(e) {
@@ -413,7 +449,7 @@ export default class RwtDockablePanels extends HTMLElement {
         }
     }
     nextFloatDeltaX() {
-        return this.nextFloatLeft = this.nextFloatLeft > 100 ? 0 : this.nextFloatLeft + 10, 
+        return this.nextFloatLeft = this.nextFloatLeft > 100 ? 0 : this.nextFloatLeft + 14, 
         this.nextFloatLeft;
     }
     floatDockHelper(e, t, n) {
@@ -421,33 +457,37 @@ export default class RwtDockablePanels extends HTMLElement {
             if (0 == e.isDocked) return;
             var o = document.createElement('div');
             o.style.display = 'none', e.parentNode.insertBefore(o, e), e.saveReferenceNode = o, 
-            e.saveParentNode = e.parentNode, (d = document.createElement('menu')).className = 'chef-toolbar', 
+            e.saveParentNode = e.parentNode, (c = document.createElement('menu')).className = 'chef-toolbar chef-floating-toolbar', 
             e.boundPointerdownToolbar = this.onPointerdownToolbar.bind(this), e.addEventListener('pointerdown', e.boundPointerdownToolbar);
-            var a = e.savePosition, i = null != a, r = this.nextFloatDeltaX();
-            if ('top-left' == this.corner || 'bottom-left' == this.corner) if (i) d.style.left = a.left; else {
-                var l = e.offsetLeft + e.offsetParent.offsetLeft + e.offsetWidth + 13 + r;
-                d.style.left = l + 'px';
-            } else if (i) d.style.right = a.right; else {
-                l = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('right')) + this.toolbar.offsetWidth + 13 + r;
-                d.style.right = l + 'px';
+            var a = e.savePosition, i = null != a, s = 20, r = this.nextFloatDeltaX();
+            if ('top-left' == this.corner || 'bottom-left' == this.corner) if (i) c.style.left = a.left; else {
+                var l = this.toolbar.offsetLeft + this.toolbar.offsetWidth + r;
+                l = Math.min(l, window.innerWidth - this.toolbar.offsetWidth - s), l = Math.max(l, s), 
+                c.style.left = l + 'px';
+            } else if (i) c.style.right = a.right; else {
+                l = window.innerWidth - this.toolbar.offsetLeft + r;
+                l = Math.min(l, window.innerWidth - this.toolbar.offsetWidth - s), l = Math.max(l, s), 
+                c.style.right = l + 'px';
             }
-            if ('top-left' == this.corner || 'top-right' == this.corner) if (i) d.style.top = a.top; else {
-                var s = e.offsetTop + e.offsetParent.offsetTop;
-                d.style.top = s + 'px';
-            } else if (i) d.style.bottom = a.bottom; else {
-                s = this.pxToNum(window.getComputedStyle(this.toolbar).getPropertyValue('bottom')) + this.toolbar.offsetHeight - e.offsetTop - e.offsetHeight;
-                d.style.bottom = s + 'px';
+            if ('top-left' == this.corner || 'top-right' == this.corner) if (i) c.style.top = a.top; else {
+                var d = this.toolbar.offsetTop + r;
+                d = Math.min(d, window.innerHeight - e.offsetHeight - s), d = Math.max(d, s), c.style.top = d + 'px';
+            } else if (i) c.style.bottom = a.bottom; else {
+                d = window.innerHeight - this.toolbar.offsetTop + r;
+                this.expandPanel(e.id), d = Math.min(d, window.innerHeight - e.offsetHeight - s), 
+                d = Math.max(d, s), c.style.bottom = d + 'px';
             }
-            this.shadowRoot.appendChild(d), i && ('' != a.width && (d.style.width = a.width), 
-            '' != a.height && (d.style.height = a.height)), d.appendChild(e), t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT, 
-            t.title = 'Dock menu', e.isDocked = !1, this.expandPanel(e.id), e.style.zIndex = this.nextZIndex++;
+            this.shadowRoot.appendChild(c), i && ('' != a.width && (c.style.width = a.width), 
+            '' != a.height && (c.style.height = a.height)), c.appendChild(e), t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.COLLAPSE_RIGHT : Static.COLLAPSE_LEFT, 
+            t.title = 'Dock menu', e.isDocked = !1, this.expandPanel(e.id), e.style.zIndex = this.nextZIndex++, 
+            e.focus();
         } else {
             if (1 == e.isDocked) return;
-            var d = e.parentNode;
-            e.savePosition = {}, e.savePosition.left = d.style.left, e.savePosition.right = d.style.right, 
-            e.savePosition.top = d.style.top, e.savePosition.bottom = d.style.bottom, e.savePosition.width = d.style.width, 
-            e.savePosition.height = d.style.height, e.saveParentNode.insertBefore(e, e.saveReferenceNode), 
-            e.saveParentNode.removeChild(e.saveReferenceNode), d.parentNode.removeChild(d), 
+            var c = e.parentNode;
+            e.savePosition = {}, e.savePosition.left = c.style.left, e.savePosition.right = c.style.right, 
+            e.savePosition.top = c.style.top, e.savePosition.bottom = c.style.bottom, e.savePosition.width = c.style.width, 
+            e.savePosition.height = c.style.height, e.saveParentNode.insertBefore(e, e.saveReferenceNode), 
+            e.saveParentNode.removeChild(e.saveReferenceNode), c.parentNode.removeChild(c), 
             e.removeEventListener('pointerdown', e.boundPointerdownToolbar), e.saveParentNode.isExpanded || (e.style.display = 'none'), 
             t.innerHTML = 'top-left' == this.corner || 'bottom-left' == this.corner ? Static.FLOAT_RIGHT : Static.FLOAT_LEFT, 
             t.title = 'Detach menu', e.isDocked = !0, this.collapsePanel(e.id);
@@ -474,7 +514,7 @@ export default class RwtDockablePanels extends HTMLElement {
     collapseFirstDetachedOpenPanel() {
         var e = this.shadowRoot.querySelectorAll('menu.chef-toolbar ~ menu');
         for (let t = 0; t < e.length; t++) {
-            let n = e[t].querySelector('menu.chef-list');
+            let n = e[t].querySelector('menu.chef-panel');
             if (null != n && 1 == n.isExpanded) return this.collapsePanel(n.id), !0;
         }
         return !1;
@@ -482,7 +522,7 @@ export default class RwtDockablePanels extends HTMLElement {
     dockFirstDetachedPanel() {
         var e = this.shadowRoot.querySelectorAll('menu.chef-toolbar ~ menu');
         for (let t = 0; t < e.length; t++) {
-            let n = e[t].querySelector('menu.chef-list');
+            let n = e[t].querySelector('menu.chef-panel');
             if (null != n && 0 == n.isExpanded) return this.attachPanel(n.id), !0;
         }
         return !1;
@@ -498,7 +538,7 @@ export default class RwtDockablePanels extends HTMLElement {
     onPointerdownToolbar(e) {
         if ('chef-expand-button' != e.target.className && 'chef-float-button' != e.target.className) {
             for (var t = e.target, n = null; null == n; ) if (-1 != t.className.indexOf('chef-toolbar')) n = t; else {
-                if (-1 != t.className.indexOf('chef-line')) return;
+                if (-1 != t.className.indexOf('chef-section')) return;
                 if ('#document-fragment' == t.parentNode.nodeName) return;
                 t = t.parentNode;
             }
@@ -546,22 +586,22 @@ export default class RwtDockablePanels extends HTMLElement {
             }
             var o = new Date;
             o.setUTCMonth(0, 1);
-            var a = (Math.floor((Date.now() - o) / 864e5) + 1) % 26, i = window.location.hostname, r = `Unregistered ${Static.componentName} component.`;
+            var a = (Math.floor((Date.now() - o) / 864e5) + 1) % 26, i = window.location.hostname, s = `Unregistered ${Static.componentName} component.`;
             try {
-                var l = (await import('../../rwt-registration-keys.js')).default;
-                for (let e = 0; e < l.length; e++) {
-                    var s = l[e];
-                    if (s.hasOwnProperty('product-key') && s['product-key'] == Static.componentName) return i != s.registration && console.warn(`${r} See https://readwritetools.com/licensing.blue to learn more.`), 
-                    void (a == t && window.setTimeout(this.authenticate.bind(this, s), 1e3));
+                var r = (await import('../../rwt-registration-keys.js')).default;
+                for (let e = 0; e < r.length; e++) {
+                    var l = r[e];
+                    if (l.hasOwnProperty('product-key') && l['product-key'] == Static.componentName) return i != l.registration && console.warn(`${s} See https://readwritetools.com/licensing.blue to learn more.`), 
+                    void (a == t && window.setTimeout(this.authenticate.bind(this, l), 1e3));
                 }
-                console.warn(`${r} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
+                console.warn(`${s} rwt-registration-key.js file missing "product-key": "${Static.componentName}"`);
             } catch (e) {
-                console.warn(`${r} rwt-registration-key.js missing from website's root directory.`);
+                console.warn(`${s} rwt-registration-key.js missing from website's root directory.`);
             }
         }
     }
     async authenticate(e) {
-        var t = encodeURIComponent(window.location.hostname), n = encodeURIComponent(window.location.href), o = encodeURIComponent(e.registration), a = encodeURIComponent(e['customer-number']), i = encodeURIComponent(e['access-key']), r = {
+        var t = encodeURIComponent(window.location.hostname), n = encodeURIComponent(window.location.href), o = encodeURIComponent(e.registration), a = encodeURIComponent(e['customer-number']), i = encodeURIComponent(e['access-key']), s = {
             method: 'POST',
             mode: 'cors',
             credentials: 'omit',
@@ -572,8 +612,8 @@ export default class RwtDockablePanels extends HTMLElement {
             body: `product-name=${Static.componentName}&hostname=${t}&href=${n}&registration=${o}&customer-number=${a}&access-key=${i}`
         };
         try {
-            var l = await fetch('https://validation.readwritetools.com/v1/genuine/component', r);
-            if (200 == l.status) await l.json();
+            var r = await fetch('https://validation.readwritetools.com/v1/genuine/component', s);
+            if (200 == r.status) await r.json();
         } catch (e) {
             console.info(e.message);
         }

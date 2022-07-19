@@ -1,32 +1,36 @@
 /* Copyright (c) 2021 Read Write Tools. Legal use subject to the Dockable Panels DOM Component Software License Agreement. */
 :host{--pure-black:#000;--nav-black:#111;--light-black:#171717;--medium-black:#222;--black:#333;--dark-gray:#555;--gray:#777;--light-gray:#999;--disabled-white:#aaa;--white:#ccc;--pure-white:#fff;--js-blue:#76afe8;--title-blue:#42affa;--yellow:#ffffa4;--red:#ff3d3d;--surfie-green:#107187;--coral-atoll:#0E6073;--tiber:#093640;--eden:#0D4A56;--top:30px;--bottom:30px;--left:30px;--right:30px;--width:250px;--font-family:Arial,sans-serif;--z-index:1;--color:var(--pure-white);--border-color:var(--pure-white);--background-color1:var(--surfie-green);--background-color2:var(--coral-atoll);--background-color3:var(--tiber);--background-color4:var(--eden);--width-expand-float:24px;--width-h1:calc(100% - var(--width-expand-float));--width-h2:calc(100% - 2*var(--width-expand-float))}
+#toolbar{display:flex;flex-direction:column;max-height:calc(100% - 8px)}
 #toolbar.bottom-left{bottom:var(--bottom);left:var(--left)}
 #toolbar.bottom-right{bottom:var(--bottom);right:var(--right)}
 #toolbar.top-left{top:var(--top);left:var(--left)}
 #toolbar.top-right{top:var(--top);right:var(--right)}
-.chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-line,.chef-list,.chef-menuitem,.chef-nav,.chef-select,.chef-toolbar{margin:0;padding:0}
-.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-list,.chef-menuitem,.chef-nav,.chef-toolbar{line-height:24px}
-.chef-after,.chef-command,.chef-input,.chef-label,.chef-line,.chef-select{line-height:26px;height:20px}
-.chef-list{height:100%}
+.chef-toolbar-holder{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
+.chef-floating-toolbar{height:fit-content;max-height:calc(100% - 4px);overflow-y:auto}
+.chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-menuitem,.chef-nav,.chef-panel,.chef-section,.chef-select,.chef-toolbar{margin:0;padding:0}
+.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-menuitem,.chef-nav,.chef-panel,.chef-toolbar{line-height:24px}
+.chef-after,.chef-command,.chef-input,.chef-label,.chef-section,.chef-select{line-height:26px;height:20px}
+.chef-section{position:relative}
+.chef-panel{height:100%;border-right:1px #222 solid}
 .chef-select{line-height:26px;height:26px}
 .chef-command{line-height:18px;height:22px}
 .chef-generic{line-height:14px}
-.chef-toolbar{position:absolute;width:var(--width);z-index:var(--z-index)}
+.chef-toolbar{position:fixed;width:var(--width);z-index:var(--z-index)}
 .chef-toolbar{border-style:solid;border-color:var(--gray) var(--light-gray) var(--light-gray) var(--gray);border-width:1px 2px 2px 1px;cursor:default}
 .chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-menuitem{border-width:1px 0 0 0;border-style:solid;border-color:var(--border-color);cursor:pointer}
 .chef-h1{display:block;width:var(--width-h1)}
 .chef-h2{display:block;width:var(--width-h2)}
-.chef-h3{border-width:0}
-.chef-line,.chef-menuitem{display:block;width:100%}
+.chef-h3{border-width:0;padding:10px}
+.chef-menuitem,.chef-section{display:block;width:100%}
 .chef-h1,.chef-h2,.chef-h3,.chef-menuitem{font-family:var(--font-family);font-weight:900;font-size:14px;letter-spacing:1px;text-align:left}
 .chef-h1,.chef-h2,.chef-h3,.chef-menuitem{color:var(--color);background-color:var(--background-color3)}
 .chef-h1,.chef-h2,.chef-h3,.chef-menuitem{text-indent:10px}
 .chef-h1:hover,.chef-h2:hover,.chef-menuitem:hover{background-color:var(--background-color1)}
-.chef-nav+.chef-line{border-top:dotted 1px var(--pure-black)}
-.chef-flex-div{display:none;flex-direction:column;height:100%}
-.chef-line{margin-right:10px;padding:10px 0 20px 0}
-.chef-line{font-family:var(--font-family);font-weight:500;font-size:11px}
-.chef-line,.chef-list{color:var(--color);background-color:var(--background-color4)}
+.chef-nav+.chef-section{border-top:dotted 1px var(--pure-black)}
+.chef-content{display:none;flex-direction:column;height:calc(100% - 25px);overflow-y:hidden;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
+.chef-section{padding:10px 0 20px 0}
+.chef-section{font-family:var(--font-family);font-weight:500;font-size:11px}
+.chef-panel,.chef-section{color:var(--color);background-color:var(--background-color4)}
 .chef-label{position:absolute;text-align:right;width:110px}
 .chef-input{margin-left:120px;padding:2px;width:50px}
 .chef-input[disabled]{background-color:var(--disabled-white);color:var(--color)}
@@ -40,16 +44,23 @@
 .chef-expand-button,.chef-float-button{color:var(--color);background-color:var(--background-color2)}
 .chef-command{display:block;width:90%;margin:0 auto}
 .chef-command{color:var(--color);background-color:var(--background-color2);border:1px solid var(--border-color);border-radius:3px;cursor:pointer}
+.chef-command[disabled],.chef-command[disabled]:hover{background-color:var(--background-color3);color:var(--light-gray);border-color:var(--light-gray);cursor:not-allowed}
 .chef-kbd{font-size:12px;padding:2px 4px;color:var(--color);background-color:var(--background-color2);border:1px solid var(--border-color);border-radius:3px;cursor:pointer}
 .chef-one-third-command{display:inline-block!important;width:73px!important;margin:0 5px!important}
 .chef-command:hover,.chef-expand-button:hover,.chef-float-button:hover,.chef-kbd:hover{background-color:var(--background-color1)}
-.chef-generic{font-family:var(--font-family);font-weight:500;font-size:11px;text-align:left;letter-spacing:1px}
+.chef-generic{font-family:var(--font-family);font-weight:500;font-size:11px;text-align:left;letter-spacing:1px;user-select:text;cursor:text}
 .chef-generic{color:var(--color);padding:13px 10px}
+.chef-table{user-select:text}
 .chef-table tr{border-bottom:var(--border-color) 1px solid}
 .chef-table tr:nth-child(even){background-color:var(--background-color1)}
 .chef-table tr:nth-child(odd){background-color:var(--background-color2)}
+.chef-table tr.focusable td{cursor:pointer;font-weight:700}
+.chef-table tr.focusable:focus,.chef-table tr.focusable[selected]{color:#333;background-color:#f9e9ae}
 .chef-table th{font-weight:700}
-.chef-table td,th{padding:0 4px}
+.chef-table td,th{padding:0 4px;cursor:text}
+.chef-table td::selection{color:#333;background-color:#fdd}
 .chef-left{text-align:left}
 .chef-center{text-align:center}
 .chef-right{text-align:right}
+summary{padding:0 4px;cursor:pointer}
+a{color:var(--pure-white)}
