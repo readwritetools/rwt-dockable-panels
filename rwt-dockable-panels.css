@@ -6,12 +6,12 @@
 #toolbar.top-left{top:var(--top);left:var(--left)}
 #toolbar.top-right{top:var(--top);right:var(--right)}
 .chef-toolbar-holder{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
-.chef-floating-toolbar{height:fit-content;max-height:calc(100% - 4px);overflow-y:auto}
+.chef-floating-toolbar{height:fit-content;max-height:calc(100% - 4px);overflow-y:hidden}
 .chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-menuitem,.chef-nav,.chef-panel,.chef-section,.chef-select,.chef-toolbar{margin:0;padding:0}
 .chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-menuitem,.chef-nav,.chef-panel,.chef-toolbar{line-height:24px}
 .chef-after,.chef-command,.chef-input,.chef-label,.chef-section,.chef-select{line-height:26px;height:20px}
-.chef-section{position:relative}
-.chef-panel{height:100%;border-right:1px #222 solid}
+.chef-section{position:relative;height:fit-content}
+.chef-panel{max-height:calc(100vh - 4px - 32px);border-right:1px #222 solid}
 .chef-select{line-height:26px;height:26px}
 .chef-command{line-height:18px;height:22px}
 .chef-generic{line-height:14px}
@@ -27,7 +27,7 @@
 .chef-h1,.chef-h2,.chef-h3,.chef-menuitem{text-indent:10px}
 .chef-h1:hover,.chef-h2:hover,.chef-menuitem:hover{background-color:var(--background-color1)}
 .chef-nav+.chef-section{border-top:dotted 1px var(--pure-black)}
-.chef-content{display:none;flex-direction:column;height:calc(100% - 25px);overflow-y:hidden;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
+.chef-content{display:none;max-height:calc(100vh - 30px - 32px);overflow-y:auto;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
 .chef-section{padding:10px 0 20px 0}
 .chef-section{font-family:var(--font-family);font-weight:500;font-size:11px}
 .chef-panel,.chef-section{color:var(--color);background-color:var(--background-color4)}
