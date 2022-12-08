@@ -139,6 +139,8 @@ it:
          * `open` [default] The toolbar menu should initially be expanded.
       * Optionally, apply a `shortcut` attribute with a value like `'F1'`, `'F2'`, `'F3'`, to
          allow the toolbar to be opened and closed using the keyboard.
+      * Optionally, apply an `embedded` attribute with a value of "embedded" when the
+         component is used inside another DOM component.
 
 Example:
 
@@ -231,20 +233,35 @@ These are the possible lineTypes and their configuration properties:
       * `textAfter` is the optional short text to display after the `INPUT`, optional
    6. `"generic"`
 
-      * `id` the identifier for the `DIV` element
-      * `heightInPx` the height of the `DIV` element, specified with "px"
-      * `overflowY` Whether to show the scrollbar, either "scroll" or "hidden"
-   7. `"table"`
+      * `id` the identifier for the "chef-generic" panel's outer `DIV` element
+      * `innerHTML` is the generic HTML to be displayed
+      * `heightInPx` the CSS value for the panel's height, defaults to 'fit-content'
+      * `overflowX` Whether to show a horizontal scrollbar: "scroll", "hidden", "clip",
+         "auto"
+      * `overflowY` Whether to show a vertical scrollbar: "scroll", "hidden", "clip",
+         "auto"
+   7. `"custom"`
+
+      * `id` the identifier for the "chef-custom" panel's outer `DIV` element
+      * `innerHTML` is the custom HTML to be displayed
+      * `heightInPx` the CSS value for the panel's height, defaults to 'fit-content'
+      * `overflowX` Whether to show a horizontal scrollbar: "scroll", "hidden", "clip",
+         "auto"
+      * `overflowY` Whether to show a vertical scrollbar: "scroll", "hidden", "clip",
+         "auto"
+   8. `"table"`
 
       * `id` is the identifier to be assigned to the `TABLE` being created
-      * `innerHTML` is the HTML to start with
+      * `innerHTML` is the TABLE's inner HTML
       * `minHeightInPx` is a number of pixels, expressed as a string ending in 'px', like
          '156px'
       * `maxHeightInPx` is a number of pixels, expressed as a string ending in 'px', like
          '156px'
-      * `heightInPx` is a number of pixels, expressed as a string ending in 'px', like
-         '156px'
-      * `overflowY` is either 'scroll' or 'hidden' or 'auto', optional
+      * `heightInPx` the CSS value for the panel's height, defaults to '100%'
+      * `overflowX` Whether to show a horizontal scrollbar: "scroll", "hidden", "clip",
+         "auto"
+      * `overflowY` Whether to show a vertical scrollbar: "scroll", "hidden", "clip",
+         "auto"
 
 #### Programmatic configuration
 
@@ -343,12 +360,26 @@ with the same properties as just described. The methods are:
 	</dd>
 	<dt>appendGenericArea (elPanel, options)</dt>
 	<dd>
-		<span>creates a &lt;div&gt; suitable for use with dynamic HTML. The possible <code>options</code> are:</span>
+		<span>creates a &lt;div&gt; styled with CSS class 'chef-generic'. The possible <code>options</code> are:</span>
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'generic'</code></li>
-			<li><code>id</code> the identifier for the <code>DIV</code> element</li>
-			<li><code>heightInPx</code> the height of the <code>DIV</code> element, specified with "px"</li>
-			<li><code>overflowY</code> Whether to show the scrollbar, either "scroll" or "hidden"</li>
+			<li><code>id</code> the identifier for the generic panel's outer <code>DIV</code> element</li>
+			<li><code>innerHTML</code> is the generic HTML to be displayed</li>
+			<li><code>heightInPx</code> the CSS value for the panel's height, defaults to 'fit-content'</li>
+			<li><code>overflowX</code> Whether to show a horizontal scrollbar: "scroll", "hidden", "clip", "auto"</li>
+			<li><code>overflowY</code> Whether to show a vertical scrollbar: "scroll", "hidden", "clip", "auto"</li>
+		</ul>
+	</dd>
+	<dt>appendCustomArea (elPanel, options)</dt>
+	<dd>
+		<span>creates a &lt;div&gt; styled with CSS class 'chef-custom'. The possible <code>options</code> are:</span>
+		<ul>
+			<li><code>lineType</code> must have a value of <code>'custom'</code></li>
+			<li><code>id</code> the identifier for the custom panel's outer <code>DIV</code> element</li>
+			<li><code>innerHTML</code> is the custom HTML to be displayed</li>
+			<li><code>heightInPx</code> the CSS value for the panel's height, defaults to 'fit-content'</li>
+			<li><code>overflowX</code> Whether to show a horizontal scrollbar: "scroll", "hidden", "clip", "auto"</li>
+			<li><code>overflowY</code> Whether to show a vertical scrollbar: "scroll", "hidden", "clip", "auto"</li>
 		</ul>
 	</dd>
 	<dt>appendTableArea (elPanel, options)</dt>
@@ -357,11 +388,12 @@ with the same properties as just described. The methods are:
 		<ul>
 			<li><code>lineType</code> must have a value of <code>'table'</code></li>
 			<li><code>id</code> is the identifier to be assigned to the <code>TABLE</code> being created</li>
-			<li><code>innerHTML</code> is the HTML to start with</li>
+			<li><code>innerHTML</code> is the TABLE's inner HTML</li>
 			<li><code>minHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
 			<li><code>maxHeightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
-			<li><code>heightInPx</code> is a number of pixels, expressed as a string ending in 'px', like '156px'</li>
-			<li><code>overflowY</code> is either 'scroll' or 'hidden' or 'auto', optional</li>
+			<li><code>heightInPx</code> the CSS value for the panel's height, defaults to '100%'</li>
+			<li><code>overflowX</code> Whether to show a horizontal scrollbar: "scroll", "hidden", "clip", "auto"</li>
+			<li><code>overflowY</code> Whether to show a vertical scrollbar: "scroll", "hidden", "clip", "auto"</li>
 		</ul>
 	</dd>
 </dl>
@@ -387,8 +419,14 @@ its panels.
 	<dd>detaches the panel from the toolbar, allowing it to float independently</dd>
 	<dt>attachPanel (panelID)</dt>
 	<dd>reattaches the panel to the toolbar</dd>
-	<dt>presetDetachablePanelPosition(panelID, top, left, bottom, right)</dt>
-	<dd>overrides the default future position of a detachable panel. The positional parameters must be in CSS notation, like "10px", "3rem", etc. Only two of the four position values are relevant, depending upon which corner the menu is anchored to.</dd>
+	<dt>presetDetachedX(panelID, css)</dt>
+	<dd>Preset the panel's distance from left edge / right edge of the component when detached. "css" is the value to assign to the component's "left" or "right" CSS property.</dd>
+	<dt>presetDetachedY(panelID, css)</dt>
+	<dd>Preset the panel's distance from top edge / bottom edge of the component when detached. "css" is the value to assign to the component's "top" or "bottom" CSS property.</dd>
+	<dt>presetDetachedWidth(panelID, css)</dt>
+	<dd>Preset the panel's width when detached. "css" is the value to assign to the component's "width" CSS property.</dd>
+	<dt>presetDetachedHeight(panelID, css)</dt>
+	<dd>Preset the panel's height when detached. "css" is the value to assign to the component's "height" CSS property.</dd>
 </dl>
 
 #### Programmatic access
