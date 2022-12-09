@@ -1,6 +1,6 @@
 /* Copyright (c) 2021 Read Write Tools. Legal use subject to the Dockable Panels DOM Component Software License Agreement. */
 :host{--pure-black:#000;--nav-black:#111;--light-black:#171717;--medium-black:#222;--black:#333;--dark-gray:#555;--gray:#777;--light-gray:#999;--disabled-white:#aaa;--white:#ccc;--pure-white:#fff;--js-blue:#76afe8;--title-blue:#42affa;--yellow:#ffffa4;--red:#ff3d3d;--surfie-green:#107187;--coral-atoll:#0E6073;--tiber:#093640;--eden:#0D4A56;--top:30px;--bottom:30px;--left:30px;--right:30px;--width:250px;--font-family:Arial,sans-serif;--z-index:1;--color:var(--pure-white);--border-color:var(--pure-white);--background-color1:var(--surfie-green);--background-color2:var(--coral-atoll);--background-color3:var(--tiber);--background-color4:var(--eden);--width-expand-float:24px;--width-h1:calc(100% - var(--width-expand-float));--width-h2:calc(100% - 2*var(--width-expand-float))}
-#toolbar{display:flex;flex-direction:column;max-height:calc(100% - 8px)}
+#toolbar{position:absolute;display:flex;flex-direction:column;max-height:calc(100% - 8px)}
 #toolbar.bottom-left{bottom:var(--bottom);left:var(--left)}
 #toolbar.bottom-right{bottom:var(--bottom);right:var(--right)}
 #toolbar.top-left{top:var(--top);left:var(--left)}
@@ -52,7 +52,7 @@
 .chef-generic{color:var(--color);padding:13px 10px}
 .chef-table{user-select:text}
 .chef-table tr{border-bottom:var(--border-color) 1px solid}
-.chef-table tr:nth-child(even){background-color:var(--background-color1)}
+.chef-table tr:nth-child(2n){background-color:var(--background-color1)}
 .chef-table tr:nth-child(odd){background-color:var(--background-color2)}
 .chef-table tr.focusable td{cursor:pointer;font-weight:700}
 .chef-table tr.focusable:focus,.chef-table tr.focusable[selected]{color:#333;background-color:#f9e9ae}
