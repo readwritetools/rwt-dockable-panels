@@ -1,4 +1,4 @@
-
+html
 
 
 
@@ -517,7 +517,7 @@ eBook, mobile app, or desktop application, you must obtain a license from <a hre
 
 <details>
 	<summary>Dockable Panels Software License Agreement</summary>
-	<p>Copyright © 2022 Read Write Tools.</p>
+	<p>Copyright © 2023 Read Write Tools.</p>
 	<ol>
 		<li>This Software License Agreement ("Agreement") is a legal contract between you and Read Write Tools ("RWT"). The "Materials" subject to this Agreement include the "Dockable Panels" software and associated documentation.</li>
 		<li>By using these Materials, you agree to abide by the terms and conditions of this Agreement.</li>

@@ -6,7 +6,7 @@
 #toolbar.top-left{top:var(--top);left:var(--left)}
 #toolbar.top-right{top:var(--top);right:var(--right)}
 .chef-toolbar-holder{display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;margin:0;padding:0}
-.chef-floating-toolbar{height:fit-content;max-height:calc(100% - 4px);overflow-y:hidden}
+.chef-floating-toolbar{height:fit-content;max-height:calc(100% - 4px);background-color:var(--background-color4);overflow-y:hidden}
 .chef-after,.chef-command,.chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-input,.chef-label,.chef-menuitem,.chef-nav,.chef-panel,.chef-section,.chef-select,.chef-toolbar{margin:0;padding:0}
 .chef-expand-button,.chef-float-button,.chef-h1,.chef-h2,.chef-h3,.chef-menuitem,.chef-nav,.chef-panel,.chef-toolbar{line-height:24px}
 .chef-after,.chef-command,.chef-input,.chef-label,.chef-section,.chef-select{line-height:26px;height:20px}
